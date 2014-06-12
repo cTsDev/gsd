@@ -28,7 +28,8 @@
     "async":"",
     "ncp":"",
     "ftpd":"git://github.com/sstur/nodeftpd.git",
-    "request":""
+    "request":"",
+    "bukget":"git://github.com/gametainers/bukget.js.git"
   },
   "engines": {
     "node": ">=0.6"

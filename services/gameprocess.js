@@ -239,6 +239,17 @@ GameServer.prototype.deletefile = function Console(){
 
 }
 
+GameServer.prototype.plugincategories = function(callback){
+  this.plugin.pluginsGetCategories(this, callback);
+}
+
+GameServer.prototype.pluginsByCategory = function(category, size, start, callback){
+  this.plugin.pluginsByCategory(this, category, size, start, callback);
+}
+
+GameServer.prototype.pluginsSearch = function(name, size, start, callback){
+  this.plugin.pluginsSearch(this, name, size, start, callback);
+}
 GameServer.prototype.getgamemodes = function getgamemode(res){
   managerlocation = pathlib.join(__dirname,"gamemodes",self.config.plugin,"gamemodemanager");
   child = exec(managerlocation + ' getlist',

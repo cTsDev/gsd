@@ -11,6 +11,7 @@ var restserver = restify.createServer();
 
 restserver.use(restify.bodyParser());
 restserver.use(restify.authorizationParser());
+restserver.use(restify.queryParser());
 restserver.on('MethodNotAllowed', unknownMethodHandler);
 
 restserver.use(
@@ -27,7 +28,7 @@ restserver.get('/', function info(req, res, next){
     settings = plugins[key];
     _plugins[settings.name] = {"file":key.slice(0, -3)};
   }
-  response = {'gsd_version':"0.001", 'plugins':_plugins, 'settings':{'consoleport':config.daemon.consoleport}};
+  response = {'gsd_version':"0.002", 'plugins':_plugins, 'settings':{'consoleport':config.daemon.consoleport}};
   res.send(response);
 });
 
@@ -187,6 +188,21 @@ restserver.del('/gameservers/:id/gamemodes', function command(req, res, next){
   service.getgamemode(res);
 });
 
+restserver.get('/gameservers/:id/plugins/categories/:category', function command(req, res, next){
+  service = servers[req.params.id];
+
+  service.pluginsByCategory(req.params['category'], req.query.size, req.query.start, function(err, results){res.send(results)});
+});
+
+restserver.get('/gameservers/:id/plugins/categories', function command(req, res, next){
+  service = servers[req.params.id];
+  service.plugincategories(function(err, results){res.send(results)});
+});
+
+restserver.post('/gameservers/:id/plugins/search', function command(req, res, next){
+  service = servers[req.params.id];
+  service.pluginSearch(req.params['name'], req.query.size, req.query.start, function(err, results){res.send(results)});
+});
 
 restserver.listen(config.daemon.listenport, function() {
   console.log('%s listening at %s', restserver.name, restserver.url);
