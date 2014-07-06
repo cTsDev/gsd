@@ -26,7 +26,8 @@
             },
             "gameport": 25565,
             "gamehost": "",
-            "plugin": "minecraft"
+            "plugin": "minecraft",
+            "autoon" : true
         }
     ]
 }

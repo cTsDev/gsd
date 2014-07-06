@@ -10,6 +10,11 @@ function initServer(index){
     data = config.servers[index];
     servers[index] = new gameserver(data);
     servers[index].initconsole(index);
+
+    autoOn = servers[index].config.autoon;
+    if ( typeof autoOn !== 'undefined' && autoOn ){
+        servers[index].turnon();
+    }
 }
 
 servers.allsettings = function(){
