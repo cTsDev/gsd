@@ -189,17 +189,21 @@ restserver.del('/gameservers/:id/gamemodes', function command(req, res, next){
 });
 
 restserver.get('/gameservers/:id/plugins/categories/:category', function command(req, res, next){
+  if (!restauth(req, req.params.id, "plugins:list")){res = unauthorized(res); return next();}
   service = servers[req.params.id];
 
   service.pluginsByCategory(req.params['category'], req.query.size, req.query.start, function(err, results){res.send(results)});
 });
 
 restserver.get('/gameservers/:id/plugins/categories', function command(req, res, next){
+  if (!restauth(req, req.params.id, "plugins:list")){res = unauthorized(res); return next();}
+
   service = servers[req.params.id];
   service.plugincategories(function(err, results){res.send(results)});
 });
 
 restserver.post('/gameservers/:id/plugins/search', function command(req, res, next){
+  if (!restauth(req, req.params.id, "plugins:list")){res = unauthorized(res); return next();}  
   service = servers[req.params.id];
   service.pluginSearch(req.params['name'], req.query.size, req.query.start, function(err, results){res.send(results)});
 });
