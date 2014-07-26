@@ -23,7 +23,6 @@ function GameServer(config) {
   this.status = OFF;
   this.config = config;
   this.plugin = plugins[this.config.plugin + '.js'];
-  this.failcount = 0;
 
   this.variables = utls.mergedicts(this.plugin.defaultvariables, this.config.variables);
   this.commandline = merge(this.plugin.joined, this.variables);
@@ -40,7 +39,7 @@ function GameServer(config) {
   }else{
     this.gamehost = getIPAddress();
   }
-};
+}
 
 util.inherits(GameServer, events.EventEmitter);
 
@@ -53,12 +52,11 @@ GameServer.prototype.updatevariables = function(variables, replace){
     this.config.variables = this.variables;
     this.commandline = merge(this.plugin.joined, this.variables);
     savesettings();
-}
+};
 
 
 GameServer.prototype.turnon = function(){
     var self = this;
-    
     // Shouldn't happen, but does on a crash after restart
     if (!this.status == OFF){
       // console.log("Tried to turn on but status is already : " + self.status); 
@@ -106,7 +104,9 @@ GameServer.prototype.turnon = function(){
 
     this.on('crash', function(){
       console.log("Restarting after crash");
-      self.restart();
+      if (self.status == ON){
+        self.restart();
+      }
     });
       
     this.on('off', function clearup(){
@@ -145,24 +145,24 @@ GameServer.prototype.create = function(){
       callback(null); 
     }    
   ]);
-}
+};
 
 GameServer.prototype.delete = function(){
   deleteUser(this.config.user);
-}
+};
 
 GameServer.prototype.setStatus = function(status){
-  this.status = status
+  this.status = status;
   this.emit('statuschange');
   return this.status;  
-}
+};
 
 
 GameServer.prototype.query = function(self){
   r = self.plugin.query(self);
   self.emit('query');
   return r;
-}
+};
 
 GameServer.prototype.procStats = function(self){
   usage.lookup(self.pid, {keepHistory: true}, function(err, result) {
@@ -171,36 +171,37 @@ GameServer.prototype.procStats = function(self){
     self.usagestats = {"memory":result.memory, "cpu":Math.round(result.cpu)};
     self.emit('processStats');
   });
-}
+};
 
 GameServer.prototype.lastquery = function(){
   return {"motd":this.hostname, "numplayers":this.numplayers, "maxplayers":this.maxplayers, "lastquery":this.lastquerytime, "map":this.map, "players":this.players}
-}
+};
 
 GameServer.prototype.configlist = function(){
   return this.plugin.configlist(this);
-}
+};
 
 GameServer.prototype.maplist = function(){
   return this.plugin.maplist(this);
-}
+};
 
 GameServer.prototype.addonlist = function(){
   return this.plugin.addonlist(this);
-}
+};
+
 GameServer.prototype.info = function(){
   return {"query":this.lastquery(), "config":this.config, "status":this.status, "pid":this.pid, "process":this.usagestats, "variables":this.variables}
-}
+};
 
 
 GameServer.prototype.restart = function(){
   this.once('off', function (stream) {this.turnon()});
   this.turnoff();
-}
+};
 
 GameServer.prototype.kill = function(){
     this.ps.kill();
-}
+};
 
 GameServer.prototype.send = function(data){
   if (this.status == ON || this.status == STARTING){
@@ -209,22 +210,22 @@ GameServer.prototype.send = function(data){
     var err = new Error('Server turned off');
     throw err;
   }
-}
+};
 
 GameServer.prototype.console = function Console(){
 
-}
+};
 
 
 GameServer.prototype.readfile = function readfile(f){
   file = pathlib.join(this.config.path, pathlib.normalize(f));
   return fs.readFileSync(file, "utf8");
-}
+};
 
 GameServer.prototype.writefile = function writefile(f, contents){
   file = pathlib.join(this.config.path, pathlib.normalize(f));
   fs.writeFile(file, contents);
-}
+};
 
 GameServer.prototype.downloadfile = function downloadfile(url, path){
     path = pathlib.join(this.config.path, pathlib.normalize(path));
@@ -232,31 +233,31 @@ GameServer.prototype.downloadfile = function downloadfile(url, path){
     //TODO : Work out when to extract (zip etc...) , { extract: true }
     download(url, path);
     return 'ok';
-}
+};
  
 
 GameServer.prototype.deletefile = function Console(){
 
-}
+};
 
 GameServer.prototype.plugincategories = function(callback){
   this.plugin.pluginsGetCategories(this, callback);
-}
+};
 
 GameServer.prototype.pluginsByCategory = function(category, size, start, callback){
   this.plugin.pluginsByCategory(this, category, size, start, callback);
-}
+};
 
 GameServer.prototype.pluginsSearch = function(name, size, start, callback){
   this.plugin.pluginsSearch(this, name, size, start, callback);
-}
+};
 GameServer.prototype.getgamemodes = function getgamemode(res){
   managerlocation = pathlib.join(__dirname,"gamemodes",self.config.plugin,"gamemodemanager");
   child = exec(managerlocation + ' getlist',
   function (error, stdout, stderr) {
     res.send(JSON.parse(stdout));
   });
-}
+};
 
 GameServer.prototype.installgamemode = function installgamemode(){
   managerlocation = pathlib.join(__dirname,"gamemodes",self.config.plugin,"gamemodemanager");
@@ -279,9 +280,9 @@ GameServer.prototype.installgamemode = function installgamemode(){
   installer.on('exit', function(){
     self.setStatus(OFF);
   });
-}
+};
 
 GameServer.prototype.removegamemode = function Console(){
   self.ps = spawn(self.exe, [self.config.path], {cwd: self.config.path});
-}
+};
 module.exports = GameServer;

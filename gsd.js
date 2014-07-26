@@ -5,6 +5,3 @@ require('./interfaces/rest.js');
 // require('./interfaces/ftp.js');
 
 var servers = require('./services');
-
-
-
