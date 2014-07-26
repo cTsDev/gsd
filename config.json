@@ -3,9 +3,26 @@
         "listenport": 8003,
         "consoleport": 8031
     },
+    "interfaces": {
+        "rest": {},
+        "console": {},
+        "ftp": {
+            "port": 21
+        }
+    },
     "tokens": [
         "123"
     ],
     "servers": [
+        {
+            "name": "test server",
+            "user": "testuser",
+            "overide_command_line": "",
+            "path": "/home/arbytorcutio/",
+            "gameport": 25565,
+            "gamehost": "",
+            "plugin": "minecraft",
+            "autoon" : true
+        }
     ]
 }

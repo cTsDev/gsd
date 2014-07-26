@@ -69,7 +69,7 @@ GameServer.prototype.turnon = function(){
     this.setStatus(STARTING);
     
 
-    this.pid = this.ps.pid
+    this.pid = this.ps.pid;
 
     this.ps.on('data', function(data){
       output = data.toString();
@@ -83,7 +83,7 @@ GameServer.prototype.turnon = function(){
           self.usagestats = {};
           self.emit('started');
         }
-      };
+      }
     });
       
     this.ps.on('exit', function(){
@@ -116,7 +116,7 @@ GameServer.prototype.turnon = function(){
       usage.clearHistory(self.pid);
       self.pid = undefined;
     });
-}
+};
 
 GameServer.prototype.turnoff = function(){
   var self = this;
@@ -127,7 +127,7 @@ GameServer.prototype.turnoff = function(){
   }else{
     self.emit('off');
   }
-}
+};
 
 GameServer.prototype.create = function(){
   var config = this.config;
@@ -207,8 +207,7 @@ GameServer.prototype.send = function(data){
   if (this.status == ON || this.status == STARTING){
     this.ps.write(data + '\n');
   }else{
-    var err = new Error('Server turned off');
-    throw err;
+    throw new Error('Server turned off');
   }
 };
 
