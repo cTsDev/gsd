@@ -23,12 +23,12 @@ restserver.use(
 );
 
 restserver.get('/', function info(req, res, next){
-  _plugins = {}
+  _plugins = {};
   for (var key in plugins) {
     settings = plugins[key];
     _plugins[settings.name] = {"file":key.slice(0, -3)};
   }
-  response = {'gsd_version':"0.002", 'plugins':_plugins, 'settings':{'consoleport':config.daemon.consoleport}};
+  response = {'gsd_version':"0.003", 'plugins':_plugins, 'settings':{'consoleport':config.daemon.consoleport}};
   res.send(response);
 });
 
@@ -170,6 +170,7 @@ restserver.put(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
   }
 });
 
+
 restserver.get('/gameservers/:id/gamemodes', function command(req, res, next){
   if (!restauth(req, req.params.id, "gamemodes:get")){res = unauthorized(res); return next();}
   service = servers[req.params.id];
@@ -203,7 +204,7 @@ restserver.get('/gameservers/:id/plugins/categories', function command(req, res,
 });
 
 restserver.post('/gameservers/:id/plugins/search', function command(req, res, next){
-  if (!restauth(req, req.params.id, "plugins:list")){res = unauthorized(res); return next();}  
+  if (!restauth(req, req.params.id, "plugins:list")){res = unauthorized(res); return next();}
   service = servers[req.params.id];
   service.pluginSearch(req.params['name'], req.query.size, req.query.start, function(err, results){res.send(results)});
 });

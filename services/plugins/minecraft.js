@@ -3,10 +3,13 @@ fs = require('fs');
 pathlib = require('path');
 glob = require('glob')
 copyFolder = require('../create.js').copyFolder;
+var properties = require ("properties");
+
 var async = require('async');
 var Gamedig = require('gamedig');
-
 var settings = {};
+
+
 settings.name = "Minecraft"
 settings.stop_command = 'stop'
 settings.started_trigger = ')! For help, type "help" or "?"'
@@ -44,17 +47,36 @@ settings.commands = {
     'kill':'kill {{player}}',
     'clearinventory':'clearinventory {{player}}'
   }
-}
+};
 
 settings.preflight = function(server){
-  if (!fs.existsSync(pathlib.join(server.config.path, server.variables['-jar']))){
+  var jarPath = pathlib.join(server.config.path, server.variables['-jar']);
+
+  if (!fs.existsSync(jarPath)){
     throw new Error("Jar doesn\'t exist : " + server.variables['-jar']);
   }
 };
 
 settings.install = function(server, callback){
-  copyFolder(server, "/mnt/MC/CraftBukkit/", function(){callback()});
-}
+  copyFolder(server, "/mnt/MC/CraftBukkit/", function(){
+      var settingsPath = pathlib.join(server.config.path, "server.properties");
+
+      if (!fs.existsSync(settingsPath)){
+          callback();
+      }
+
+      var serverConfig = properties.parse(settingsPath, {path:true}, function (error, obj){
+
+        obj['enable-query'] = 'true';
+        obj['server-port'] = server.gameport;
+        obj['snooper-enabled'] = 'false';
+
+        properties.stringify(obj, {path:settingsPath}, function (error, obj){
+          callback();
+        });
+    });
+  })
+};
 
 settings.maplist = function maplist(self){
     maps = [];
