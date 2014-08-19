@@ -22,16 +22,6 @@ restserver.use(
   }
 );
 
-restserver.get('/', function info(req, res, next){
-  _plugins = {};
-  for (var key in plugins) {
-    settings = plugins[key];
-    _plugins[settings.name] = {"file":key.slice(0, -3)};
-  }
-  response = {'gsd_version':"0.003", 'plugins':_plugins, 'settings':{'consoleport':config.daemon.consoleport}};
-  res.send(response);
-});
-
 function restauth(req, service, permission){
   if (!('X-Access-Token' in req.headers) && 'x-access-token' in req.headers){
     req.headers['X-Access-Token'] = req.headers['x-access-token']
@@ -54,6 +44,18 @@ function unauthorized(res){
     res.end('Sorry you are not authorized');
     return res
 }
+
+restserver.get('/', function info(req, res, next){
+  if (!restauth(req, -1, "gsd:info")){res = unauthorized(res); return next();}
+
+  _plugins = {};
+  for (var key in plugins) {
+    settings = plugins[key];
+    _plugins[settings.name] = {"file":key.slice(0, -3)};
+  }
+  response = {'gsd_version':"0.003", 'plugins':_plugins, 'settings':{'consoleport':config.daemon.consoleport}};
+  res.send(response);
+});
 
 restserver.get('/gameservers/', function info(req, res, next){
   if (!restauth(req, -1, "services:list")){res = unauthorized(res); return next();}
