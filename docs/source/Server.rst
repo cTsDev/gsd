@@ -66,17 +66,64 @@ Game server
 
      GET /gameservers/ID
 
+.. code-block:: js
+
+     {
+         "query": {},
+         "config": {
+             "name": "Minecraft",
+             "user": "myuser",
+             "path": "/home/my_server_path",
+             "gameport": 12345,
+             "plugin": "minecraft"
+         },
+         "status": 0,
+         "variables": {
+             "-Djline.terminal=": "jline.UnsupportedTerminal",
+             "-Xmx": "512M",
+             "-jar": "minecraft_server.jar"
+         }
+     }
+
 .. code-block:: bash
 
      PUT /gameservers/ID
+     {"variables":{"-jar":"different_jar.jar"}}
+
+.. code-block:: js
+
+     {
+         "query": {},
+         "config": {
+             "name": "Minecraft",
+             "user": "myuser",
+             "path": "/home/my_server_path",
+             "gameport": 12345,
+             "plugin": "minecraft"
+         },
+         "status": 0,
+         "variables": {
+             "-Djline.terminal=": "jline.UnsupportedTerminal",
+             "-Xmx": "512M",
+             "-jar": "different_jar.jar"
+         }
+     }
 
 .. code-block:: bash
 
      DEL /gameservers/ID
 
+.. code-block:: js
+
+   ok
+
 .. code-block:: bash
 
      GET /gameserver/ID/query
+
+.. code-block:: js
+
+    {"motd":"My server", "numplayers":1, "maxplayers":8, "lastquery":123456, "map":"ctf_2fort, "players":["player_name"]}
 
 Power methods
 *************
@@ -84,13 +131,25 @@ Power methods
 
      GET /gameserver/ID/on
 
+.. code-block:: js
+
+   ok
+
 .. code-block:: bash
 
      GET /gameserver/ID/off
 
+.. code-block:: js
+
+   ok
+
 .. code-block:: bash
 
      GET /gameserver/ID/restart
+
+.. code-block:: js
+
+   ok
 
 Files
 *****
@@ -98,23 +157,42 @@ Files
 
      GET /gameserver/ID/configlist
 
+.. code-block:: js
+
+    {"core":["config.yml","locations.yml","modules.yml"]}
+
 .. code-block:: bash
 
      GET /gameserver/ID/maplist
+
+.. code-block:: js
+
+    ["ctf_2fort","ctf_sawmill"]
+
 
 .. code-block:: bash
 
      GET /gameserver/ID/FILEPATH
 
+.. code-block:: js
+
+     {"contents":"line\nline"}
+
 .. code-block:: bash
 
      POST /gameserver/ID/FILEPATH
+     {"contents":"newline\nline"}
+
+     POST /gameserver/ID/FILEPATH
+     {"url":"http://example.com/file_to_upload"}
+
 
 Console
 *******
 .. code-block:: bash
 
      POST /gameserver/ID/console
+     {"command":"help"}
 
 Plugins
 *******
