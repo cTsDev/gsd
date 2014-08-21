@@ -1,12 +1,21 @@
 var config = require('../config.json');
 var io = require('socket.io').listen(config.daemon.consoleport);
-
+var hasPermission = require('../auth.js').hasPermission;
 var GameServer = require('../services/gameprocess.js');
 
 GameServer.prototype.initconsole = function(index){
   var self = this;
   this.console = io.of('/'+index);
- 
+
+  this.console.use(function(socket, next){
+    if (hasPermission("console", socket.handshake.query.token, index)){
+      next();
+    }else{
+      next(new Error("No authentication"));
+    }
+  });
+
+
   this.on('console', function(data){
     self.console.emit('console', {'l':data.toString()});
   });
@@ -27,4 +36,4 @@ GameServer.prototype.initconsole = function(index){
   this.console.on('sendconsole', function (command) {
     self.send(command);
   });
-}
+};
