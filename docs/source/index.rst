@@ -15,7 +15,8 @@ Contents:
    Authentication
    Server
    FTP
-   
+   Console
+
 Indices and tables
 ==================
 
