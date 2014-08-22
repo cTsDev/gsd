@@ -162,6 +162,12 @@ restserver.get(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
   res.send({'contents':service.readfile(req.params[1])});
 });
 
+restserver.get(/^\/gameservers\/(\d+)\/folder\/(.+)/, function(req, res, next) {
+    if (!restauth(req, req.params.id, "service:file")){res = unauthorized(res); return next();}
+  service = servers[req.params[0]];
+  res.send({'contents':service.dir(req.params[1])});
+});
+
 restserver.put(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
   if (!restauth(req, req.params.id, "service:file")){res = unauthorized(res); return next();}
   if ('contents' in req.params){

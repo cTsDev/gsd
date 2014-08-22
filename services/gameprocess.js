@@ -67,7 +67,6 @@ GameServer.prototype.turnon = function(){
     this.ps = pty.spawn(this.exe, this.commandline, {cwd: this.config.path});
 
     this.setStatus(STARTING);
-    
 
     this.pid = this.ps.pid;
 
@@ -221,6 +220,31 @@ GameServer.prototype.readfile = function readfile(f){
   return fs.readFileSync(file, "utf8");
 };
 
+GameServer.prototype.dir = function dir(f){
+  folder = pathlib.join(this.config.path, pathlib.normalize(f));
+  listing = fs.readdirSync(folder);
+  files = [];
+
+  listing.forEach(function (fileName){
+    stat = fs.statSync(fileName);
+
+    if (stat.isFile())
+      filetype = "file";
+    else if (stat.isDirectory())
+      filetype = "folder";
+    else if (stat.isSymbolicLink())
+      filetype = "symlink";
+    else
+      filetype = "other";
+
+    file = {"name":fileName, "ctime":stat.ctime, "mtime":stat.mtime, "size":stat.size, "filetype":filetype};
+    files.push(file);
+  });
+
+  return files;
+
+};
+
 GameServer.prototype.writefile = function writefile(f, contents){
   file = pathlib.join(this.config.path, pathlib.normalize(f));
   fs.writeFile(file, contents);
@@ -250,6 +274,7 @@ GameServer.prototype.pluginsByCategory = function(category, size, start, callbac
 GameServer.prototype.pluginsSearch = function(name, size, start, callback){
   this.plugin.pluginsSearch(this, name, size, start, callback);
 };
+
 GameServer.prototype.getgamemodes = function getgamemode(res){
   managerlocation = pathlib.join(__dirname,"gamemodes",self.config.plugin,"gamemodemanager");
   child = exec(managerlocation + ' getlist',
