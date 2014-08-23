@@ -221,12 +221,15 @@ GameServer.prototype.readfile = function readfile(f){
 };
 
 GameServer.prototype.dir = function dir(f){
+  var self = this;
   folder = pathlib.join(this.config.path, pathlib.normalize(f));
   listing = fs.readdirSync(folder);
   files = [];
 
   listing.forEach(function (fileName){
-    stat = fs.statSync(fileName);
+    if (fileName[0] == ".") return;
+
+    stat = fs.statSync(pathlib.join(self.config.path, fileName));
 
     if (stat.isFile())
       filetype = "file";
