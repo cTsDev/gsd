@@ -229,7 +229,7 @@ GameServer.prototype.dir = function dir(f){
   listing.forEach(function (fileName){
     if (fileName[0] == ".") return;
 
-    stat = fs.statSync(pathlib.join(self.config.path, fileName));
+    stat = fs.statSync(pathlib.join(folder, fileName));
 
     if (stat.isFile())
       filetype = "file";
