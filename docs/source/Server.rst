@@ -149,7 +149,7 @@ Game server
 
 .. code-block:: bash
 
-     GET /gameserver/ID/query
+     GET /gameservers/ID/query
 
 .. code-block:: js
 
@@ -159,7 +159,7 @@ Power methods
 *************
 .. code-block:: bash
 
-     GET /gameserver/ID/on
+     GET /gameservers/ID/on
 
 .. code-block:: js
 
@@ -167,7 +167,7 @@ Power methods
 
 .. code-block:: bash
 
-     GET /gameserver/ID/off
+     GET /gameservers/ID/off
 
 .. code-block:: js
 
@@ -175,7 +175,7 @@ Power methods
 
 .. code-block:: bash
 
-     GET /gameserver/ID/restart
+     GET /gameservers/ID/restart
 
 .. code-block:: js
 
@@ -185,7 +185,7 @@ Files
 *****
 .. code-block:: bash
 
-     GET /gameserver/ID/configlist
+     GET /gameservers/ID/configlist
 
 .. code-block:: js
 
@@ -193,7 +193,7 @@ Files
 
 .. code-block:: bash
 
-     GET /gameserver/ID/maplist
+     GET /gameservers/ID/maplist
 
 .. code-block:: js
 
@@ -202,7 +202,7 @@ Files
 
 .. code-block:: bash
 
-     GET /gameserver/ID/file/FILEPATH
+     GET /gameservers/ID/file/FILEPATH
 
 .. code-block:: js
 
@@ -210,7 +210,7 @@ Files
 
 .. code-block:: bash
 
-     GET /gameserver/ID/folder/FILEPATH
+     GET /gameservers/ID/folder/FILEPATH
 
 .. code-block:: js
 
@@ -233,10 +233,10 @@ Files
 
 .. code-block:: bash
 
-     POST /gameserver/ID/file/FILEPATH
+     POST /gameservers/ID/file/FILEPATH
      {"contents":"newline\nline"}
 
-     POST /gameserver/ID/file/FILEPATH
+     POST /gameservers/ID/file/FILEPATH
      {"url":"http://example.com/file_to_upload"}
 
 
@@ -244,7 +244,7 @@ Console
 *******
 .. code-block:: bash
 
-     POST /gameserver/ID/console
+     POST /gameservers/ID/console
      {"command":"help"}
 
 Plugins
@@ -290,4 +290,4 @@ Plugins
 
 .. code-block:: bash
 
-     GET /gameserver/ID/addonsinstalled/
+     GET /gameservers/ID/addonsinstalled/
