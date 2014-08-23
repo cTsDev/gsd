@@ -59,6 +59,36 @@ All servers
 .. code-block:: bash
 
      POST /gameservers/
+     {
+         "config": {
+             "name": "My new server",
+             "user": "myuser",
+             "path": "/home/my_server_path",
+             "gameport": 12345,
+             "plugin": "minecraft"
+         },
+         "variables": {
+         }
+     }
+
+.. code-block:: js
+
+     {
+         "query": {},
+         "config": {
+             "name": "Minecraft",
+             "user": "myuser",
+             "path": "/home/my_server_path",
+             "gameport": 12345,
+             "plugin": "minecraft"
+         },
+         "status": 0,
+         "variables": {
+             "-Djline.terminal=": "jline.UnsupportedTerminal",
+             "-Xmx": "512M",
+             "-jar": "different_jar.jar"
+         }
+     }
 
 Game server
 ***********
@@ -172,7 +202,7 @@ Files
 
 .. code-block:: bash
 
-     GET /gameserver/ID/FILEPATH
+     GET /gameserver/ID/file/FILEPATH
 
 .. code-block:: js
 
@@ -180,10 +210,33 @@ Files
 
 .. code-block:: bash
 
-     POST /gameserver/ID/FILEPATH
+     GET /gameserver/ID/folder/FILEPATH
+
+.. code-block:: js
+
+        [
+            {
+                "name": "World",
+                "ctime": "2014-04-11T00:20:22.000Z",
+                "mtime": "2014-04-11T00:20:22.000Z",
+                "size": 4096,
+                "filetype": "folder"
+            },
+            {
+                "name": "banned-ips.json",
+                "ctime": "2014-08-23T09:33:46.000Z",
+                "mtime": "2014-08-23T09:33:46.000Z",
+                "size": 2,
+                "filetype": "file"
+            }
+        ]
+
+.. code-block:: bash
+
+     POST /gameserver/ID/file/FILEPATH
      {"contents":"newline\nline"}
 
-     POST /gameserver/ID/FILEPATH
+     POST /gameserver/ID/file/FILEPATH
      {"url":"http://example.com/file_to_upload"}
 
 
