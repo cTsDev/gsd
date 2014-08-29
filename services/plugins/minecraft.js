@@ -149,7 +149,7 @@ settings.pluginsGetCategories = function plugincategories(self, callback){
 };
 
 settings.pluginsByCategory = function pluginsByCategory(self, category, size, start, callback){
-    bukget.pluginsByCategories(category, {size:size, start:start, fields:"description,plugin_name,server,website,versions.game_versions,versions.version,authors,versions.download"}, function(err, results){
+    bukget.pluginsByCategories(category, {size:size, start:start, fields:"description,plugin_name,logo,server,website,versions.game_versions,versions.version,authors,versions.download"}, function(err, results){
         callback(err, results);
    });
 };
@@ -161,7 +161,7 @@ settings.pluginsSearch = function pluginsSearch(self, name, size, start, callbac
       value: name,
       size: size,
       start:start,
-      fields:"description,plugin_name,server,website,versions.game_versions,versions.version,authors,versions.download"
+      fields:"description,plugin_name,logo,server,website,versions.game_versions,versions.version,authors,versions.download"
    }, function(err, results){
       callback(err, results);
    });
