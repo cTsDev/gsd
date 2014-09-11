@@ -30,7 +30,8 @@
     "ftpd":"git://github.com/sstur/nodeftpd.git",
     "request":"",
     "bukget":"git://github.com/gametainers/bukget.js.git",
-    "properties":""
+    "properties":"",
+    "js-yaml":""
   },
   "engines": {
     "node": ">=0.6"
