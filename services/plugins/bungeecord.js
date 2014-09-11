@@ -3,6 +3,7 @@ fs = require('fs');
 pathlib = require('path');
 glob = require("glob")
 copyFolder = require('../create.js').copyFolder;
+var yaml = require('js-yaml');
 
 var settings = {};
 settings.name = "Bungeecord"
@@ -16,8 +17,24 @@ settings.query = mc.query;
 settings.preflight = mc.preflight;
 
 settings.install = function(server, callback){
-  copyFolder(server, "/mnt/MC/BungeeCord", function(){callback()});
-}
+  copyFolder(server, "/mnt/MC/BungeeCord", function(){
+      var settingsPath = pathlib.join(server.config.path, "config.yml");
+
+      if (!fs.existsSync(settingsPath)){
+          callback();
+      }
+
+      var obj = yaml.safeLoad(fs.readFileSync(settingsPath, 'utf8'));
+
+      obj['query_enabled'] = 'true';
+      obj['query_port'] = server.gameport;
+      obj['host'] = "0.0.0.0:" + server.gameport;
+
+      fs.writeFileSync(settingsPath, yaml.safeDump(obj))
+
+      callback();
+  })
+};
 
 settings.maplist = function maplist(self){
     maps = [];
