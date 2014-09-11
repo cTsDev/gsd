@@ -67,13 +67,13 @@ settings.install = function(server, callback){
 
       var serverConfig = properties.parse(settingsPath, {path:true}, function (error, obj){
 
-        obj['enable-query'] = 'true';
-        obj['server-port'] = server.gameport;
-        obj['snooper-enabled'] = 'false';
+      obj['enable-query'] = 'true';
+      obj['server-port'] = server.gameport;
+      obj['snooper-enabled'] = 'false';
 
-        properties.stringify(obj, {path:settingsPath}, function (error, obj){
-          callback();
-        });
+      properties.stringify(obj, {path:settingsPath}, function (error, obj){
+        callback();
+      });
     });
   })
 };
