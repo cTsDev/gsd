@@ -1,4 +1,7 @@
+fs = require('fs');
+path = require('path');
 var ftpd = require('ftpd');
+var optns = {tls: null};
 var config = require('../config.json');
 var ftpconfig = config.interfaces.ftp;
 var request = require('request');
@@ -15,11 +18,15 @@ if (process.env.KEY_FILE && process.env.CERT_FILE) {
   console.log('Running as FTPS server');
   if (process.env.KEY_FILE.charAt(0) !== '/') {
     keyFile = path.join(__dirname, process.env.KEY_FILE);
+  }else{
+    keyFile = process.env.KEY_FILE;
   }
   if (process.env.CERT_FILE.charAt(0) !== '/') {
     certFile = path.join(__dirname, process.env.CERT_FILE);
+  }else{
+    certFile = process.env.CERT_FILE;
   }
-  options.tls = {
+  optns.tls = {
     key: fs.readFileSync(keyFile),
     cert: fs.readFileSync(certFile),
     ca: !process.env.CA_FILES ? null : process.env.CA_FILES
@@ -28,6 +35,7 @@ if (process.env.KEY_FILE && process.env.CERT_FILE) {
         return fs.readFileSync(f);
       })
   };
+console.log('*** RUNNNING FTPS ***');
 }
 else {
   console.log();
@@ -38,12 +46,12 @@ else {
 }
 
 var options = {
-  pasvPortRangeStart: 4000,
-  pasvPortRangeEnd: 5000,
+  //pasvPortRangeStart: 4000,
+  //pasvPortRangeEnd: 5000,
   getInitialCwd: function(user) {
     return "/"
   },
-  tlsOptions: options.tls,
+  tlsOptions: optns.tls,
   allowUnauthorizedTls: true,
   getRoot: function(connection) {
     split = connection.username.rsplit("-",1);
