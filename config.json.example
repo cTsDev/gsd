@@ -10,7 +10,7 @@
       "rest":{},
       "console":{},
       "ftp":{
-	    "authurl":"http://www.mysite.com/ftpauth.php"
+	    "authurl":"http://www.mysite.com/ftpauth.php",
 	    "port":21,
 	    "host":"127.0.0.1"
       }
