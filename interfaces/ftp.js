@@ -28,6 +28,7 @@ var server = new ftpd.FtpServer(ftpconfig.host, options);
 server.on('client:connected', function(conn) {
   var username;
   var serverId;
+  var fullUsername;
   console.log('Client connected from ' + conn.socket.remoteAddress);
 
   conn.on('command:user', function(user, success, failure) {
@@ -45,14 +46,14 @@ server.on('client:connected', function(conn) {
         failure();
     }
 
-    //username = user;
+    fullUsername = user;
 
     success()
   });
 
   conn.on('command:pass', function(pass, success, failure) {
       if (ftpconfig.authurl != null){
-          request.post(ftpconfig.authurl, {form:{username:user, password:pass}}, function (error, response, body) {
+          request.post(ftpconfig.authurl, {form:{username:fullUsername, password:pass}}, function (error, response, body) {
               if (!error && response.statusCode == 200) {
                   try {
                       res = JSON.parse(body);
