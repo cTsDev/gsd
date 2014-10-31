@@ -52,7 +52,7 @@ server.on('client:connected', function(conn) {
 
   conn.on('command:pass', function(pass, success, failure) {
       if (ftpconfig.authurl != null){
-          request.post(ftpconfig.authurl, {form:{username:username, password:pass}}, function (error, response, body) {
+          request.post(ftpconfig.authurl, {form:{username:user, password:pass}}, function (error, response, body) {
               if (!error && response.statusCode == 200) {
                   try {
                       res = JSON.parse(body);
