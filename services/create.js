@@ -15,7 +15,7 @@ function createUser(username, home, callback){
 
 function deleteUser(username){
   // TODO : check if user exists first
-  command = format("deluser --remove-home %s", username);
+  command = format("userdel --remove-home %s", username);
   executeCommand(command, callback)
 }
 
@@ -28,17 +28,17 @@ function linkDir(from_path, to_path, callback){
 
 function fixperms(gameserver){
   callback = function(){};
-  
+
   command = format("find %s -type d -exec chown %s {} \\;", from_path, to_path);
   executeCommand(command, callback)
-  
+
   command = format("find %s -type d -exec chown %s {} \\;", from_path, to_path);
   executeCommand(command, callback)
 };
 
 function replaceFiles(base_folder, files, backing_folder, callback){
   finalfiles = [];
-  
+
   files.forEach(function(file) {
     isWildcard = (file.indexOf("*") != -1);
     if (isWildcard == true){
@@ -47,11 +47,11 @@ function replaceFiles(base_folder, files, backing_folder, callback){
       });
     };
   })
-  
+
   async.each(finalfiles, function( file, icallback) {
       var fileTo = pathlib.join(base_folder, file);
       var fileFrom = pathlib.join(backing_folder, file);
-      
+
       fs.exists(fileTo, function (exists) {
 	if (exists){
 	  fs.unlink(fileTo, function(err){
@@ -62,7 +62,7 @@ function replaceFiles(base_folder, files, backing_folder, callback){
 		icallback();
 	      });
 	  });
-	  
+
 	}else{
 	  icallback();
 	}
@@ -84,12 +84,12 @@ function symlinkFolder(gameserver, from_path, replacements, parentcallback){
   async.series([
     function(callback) {
       linkDir(from_path, gameserver.config.path, function(){callback(null)});
-       
+
     },
     function(callback) {
       replaceFiles(gameserver.config.path, replacements, from_path, function cb(){callback(null); });
     }
-    
+
   ], function(err, results){parentcallback();});
 }
 
