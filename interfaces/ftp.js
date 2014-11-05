@@ -6,13 +6,34 @@ var ftpconfig = config.interfaces.ftp;
 var request = require('request');
 var hasPermission = require('../auth.js').hasPermission;
 
+var tlsConfig = [];
+
 String.prototype.rsplit = function(sep, maxsplit) {
     var split = this.split(sep);
     return maxsplit ? [ split.slice(0, -maxsplit).join(sep) ].concat(split.slice(-maxsplit)) : split;
 };
 
-if(!fs.existsSync('../ftps.key') || !fs.existsSync('../ftps.pem')){
-    console.log(' ** WARNING: NO KEY OR CERT FILE DETECTED! **');
+if(fs.existsSync('ftps.pem') && fs.existsSync('ftps.key')){
+
+    try {
+        tlsConfig['key'] = fs.readFileSync('ftps.key')
+    } catch(ex) {
+        console.log('Unable to read ftps.key file');
+        console.log(ex);
+        process.exit()
+    }
+
+    try {
+        tlsConfig['pem'] = fs.readFileSync('ftps.pem')
+    } catch(ex) {
+        console.log('Unable to read ftps.pem file');
+        console.log(ex);
+        process.exit()
+    }
+
+}else{
+    console.log(' ** WARNING: Missing ftps.pem and/or ftps.key **');
+    process.exit();
 }
 
 var options = {
@@ -22,8 +43,8 @@ var options = {
         return "/"
     },
     tlsOptions: {
-        key: fs.readFileSync('../ftps.key'),
-        cert: fs.readFileSync('../ftps.pem')
+        key: tlsConfig.key,
+        cert: tlsConfig.pem
     },
     allowUnauthorizedTls: true,
     getRoot: function(connection) {
@@ -39,7 +60,7 @@ try {
 } catch(ex) {
     console.log("Exception occured trying to start FTP server.");
     cosole.log(ex);
-    failure();
+    process.exit()
 }
 
 server.on('error', function (error) {
