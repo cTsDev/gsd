@@ -63,6 +63,11 @@ try {
     process.exit()
 }
 
+process.on('uncaughtException', function (err) {
+  console.error(err.stack);
+  console.log("** Uncaught Exception Occured with FTP. This is usally a result of a network disconnect or a connection reset. There is nothing to worry about. **");
+});
+
 server.on('error', function (error) {
     console.log('FTP Server error:', error);
 });
