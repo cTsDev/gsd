@@ -27,7 +27,7 @@ function GameServer(config) {
   this.variables = utls.mergedicts(this.plugin.defaultvariables, this.config.variables);
   this.commandline = merge(this.plugin.joined, this.variables);
   this.exe = this.plugin.exe;
-  
+
   if ('gameport' in this.config && this.config.gameport != 0){
     this.gameport = this.config.gameport
   }else{
@@ -59,10 +59,10 @@ GameServer.prototype.turnon = function(){
     var self = this;
     // Shouldn't happen, but does on a crash after restart
     if (!this.status == OFF){
-      // console.log("Tried to turn on but status is already : " + self.status); 
+      // console.log("Tried to turn on but status is already : " + self.status);
       return;
     }
-    
+
     this.plugin.preflight(this);
     this.ps = pty.spawn(this.exe, this.commandline, {cwd: this.config.path});
 
@@ -76,7 +76,7 @@ GameServer.prototype.turnon = function(){
       if (self.status == STARTING){
         if (output.indexOf(self.plugin.started_trigger) !=-1){
           self.setStatus(ON);
-          console.log("Server started");
+          console.log("Started server for "+ this.config.user +" ("+ this.config.name +")");
           self.queryCheck = setInterval(self.query, 15000, self);
           self.statCheck = setInterval(self.procStats, 15000, self);
           self.usagestats = {};
@@ -84,17 +84,17 @@ GameServer.prototype.turnon = function(){
         }
       }
     });
-      
+
     this.ps.on('exit', function(){
       if (self.status == STOPPING){
-        console.log("Process stopped");
+        console.log("Stopping server for "+ this.config.user +" ("+ this.config.name +")");
         self.setStatus(OFF);
         self.emit('off');
 	    return;
       }
-      
+
       if (self.status == ON || self.status == STARTING){
-        console.log("Process died a horrible death");
+        console.log("Server appears to have crashed for "+ this.config.user +" ("+ this.config.name +")");
         self.setStatus(OFF);
         self.emit('off');
         self.emit('crash');
@@ -102,12 +102,12 @@ GameServer.prototype.turnon = function(){
     });
 
     this.on('crash', function(){
-      console.log("Restarting after crash");
+      console.log("Restarting server after crash for "+ this.config.user +" ("+ this.config.name +")");
       if (self.status == ON){
         self.restart();
       }
     });
-      
+
     this.on('off', function clearup(){
       clearInterval(self.queryCheck);
       clearInterval(self.statCheck);
@@ -121,7 +121,7 @@ GameServer.prototype.turnoff = function(){
   var self = this;
   clearTimeout(self.queryCheck);
   if (!self.status == OFF){
-    self.setStatus(STOPPING); 
+    self.setStatus(STOPPING);
     self.kill();
   }else{
     self.emit('off');
@@ -131,7 +131,7 @@ GameServer.prototype.turnoff = function(){
 GameServer.prototype.create = function(){
   var config = this.config;
   var self = this;
-  
+
   async.series([
     function(callback) {
       createUser(config.user, config.path, function cb(){callback(null);});
@@ -141,8 +141,8 @@ GameServer.prototype.create = function(){
     },
     function(callback) {
       fixperms(self);
-      callback(null); 
-    }    
+      callback(null);
+    }
   ]);
 };
 
@@ -153,12 +153,12 @@ GameServer.prototype.delete = function(){
 GameServer.prototype.setStatus = function(status){
   this.status = status;
   this.emit('statuschange');
-  return this.status;  
+  return this.status;
 };
 
 
 GameServer.prototype.query = function(self){
-  r = self.plugin.query(self);
+  r = {"motd":this.hostname, "numplayers":this.numplayers, "maxplayers":this.maxplayers, "lastquery":this.lastquerytime, "map":this.map, "players":this.players};
   self.emit('query');
   return r;
 };
@@ -255,12 +255,12 @@ GameServer.prototype.writefile = function writefile(f, contents){
 
 GameServer.prototype.downloadfile = function downloadfile(url, path){
     path = pathlib.join(this.config.path, pathlib.normalize(path));
-   
+
     //TODO : Work out when to extract (zip etc...) , { extract: true }
     download(url, path);
     return 'ok';
 };
- 
+
 
 GameServer.prototype.deletefile = function Console(){
 
@@ -295,15 +295,15 @@ GameServer.prototype.installgamemode = function installgamemode(){
   self.setStatus(CHANGING_GAMEMODE);
   console.log(self.config.path)
   installer = spawn(managerlocation, ["install", "craftbukkit", self.config.path], {cwd: self.config.path});
-  
+
   console.log(managerlocation);
-  
+
   installer.stdout.on('data', function(data){
     if (data == "\r\n"){return}
     console.log(data);
     self.emit('console',data);
   });
-      
+
   installer.on('exit', function(){
     self.setStatus(OFF);
   });
