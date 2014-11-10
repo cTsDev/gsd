@@ -101,7 +101,6 @@ restserver.put('/gameservers/:id', function info(req, res, next){
 	service = servers[req.params.id];
 	service.updatevariables(JSON.parse(req.params['variables']), true);
 	saveconfig(config);
-
 	res.send(service.info());
 });
 
@@ -111,7 +110,6 @@ restserver.get('/gameservers/:id/on', function on(req, res, next){
 	service = servers[req.params.id];
 	service.turnon();
 	res.send('ok')
-
 });
 
 restserver.get('/gameservers/:id/off', function off(req, res, next){

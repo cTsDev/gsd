@@ -122,10 +122,12 @@ GameServer.prototype.turnoff = function(){
 	var self = this;
 	clearTimeout(self.queryCheck);
 	if (!self.status == OFF){
-	self.setStatus(STOPPING);
-	self.kill();
+		self.setStatus(STOPPING);
+		console.log(this.config.name + ' is stopping');
+		self.kill;
+		self.setStatus(OFF);
 	}else{
-	self.emit('off');
+		self.emit('off');
 	}
 };
 
