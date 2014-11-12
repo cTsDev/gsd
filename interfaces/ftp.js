@@ -120,7 +120,9 @@ server.on('client:connected', function(conn) {
                         failure();
                     }
                 }else{
-                    console.log("Failed to authenticate: Server returned error code ("+ response.statusCode +").");
+                    console.log("Failed to authenticate: Server returned error code.");
+                    console.log(response);
+                    console.log(error);
                     failure();
                 }
             });
