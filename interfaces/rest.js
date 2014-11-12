@@ -1,7 +1,6 @@
 var restify = require('restify');
 var unknownMethodHandler = require('../utls.js').unknownMethodHandler;
 var hasPermission = require('../auth.js').hasPermission;
-
 var config = require('../config.json');
 var plugins = require("../services/plugins.js").plugins;
 var saveconfig = require('../utls.js').saveconfig;
@@ -24,17 +23,17 @@ restserver.use(
 
 function restauth(req, service, permission){
 	if (!('X-Access-Token' in req.headers) && 'x-access-token' in req.headers){
-	req.headers['X-Access-Token'] = req.headers['x-access-token']
+		req.headers['X-Access-Token'] = req.headers['x-access-token']
 	}
 
 	if (!('X-Access-Token' in req.headers)){
-	return false;
+		return false;
 	}
 
 	if (!hasPermission(permission, req.headers['X-Access-Token'], service)){
-	return false;
+		return false;
 	}else{
-	return true;
+		return true;
 	}
 }
 
@@ -83,7 +82,7 @@ restserver.del('/gameservers/:id', function info(req, res, next){
 	if (!restauth(req, req.params.id, "service:delete")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
 	// TODO: if on, turn off
-	service.delete();    var ftpd = require('ftpd');
+	service.delete();	var ftpd = require('ftpd');
 	id = config.servers.splice(req.params.id,1);
 	saveconfig(config);
 	res.send("ok");
@@ -98,10 +97,15 @@ restserver.get('/gameservers/:id', function (req, res, next){
 
 restserver.put('/gameservers/:id', function info(req, res, next){
 	if (!restauth(req, req.params.id, "service:update")){res = unauthorized(res); return next();}
-	service = servers[req.params.id];
-	service.updatevariables(JSON.parse(req.params['variables']), true);
-	saveconfig(config);
-	res.send(service.info());
+	try {
+		service = servers[req.params.id];
+		service.updatevariables(JSON.parse(req.params['variables']), true);
+		saveconfig(config);
+		res.send(service.info());
+	} catch(err){
+		console.log(err.stack);
+		res.send(service.info());
+	}
 });
 
 

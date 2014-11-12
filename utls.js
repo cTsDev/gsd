@@ -5,13 +5,13 @@ var exec = require('child_process').exec;
 function executeCommand(command, callback){
   exec(command,
     function (error, stdout, stderr) {
-      console.log('stdout: ' + stdout);
-      console.log('stderr: ' + stderr);
+      //console.log('stdout: ' + stdout);
+      //console.log('stderr: ' + stderr);
       if (error !== null) {
-	console.log('exec error: ' + error);
+	    console.log('executeCommand() error: ' + error);
       }
       callback();
-  });  
+  });
 }
 
 function mergedicts(){
@@ -29,17 +29,17 @@ function mergedicts(){
 function merge(joinedCliCommands) {
     var sources = [].slice.call(arguments, 1);
     var variables = [];
-    
+
     sources.forEach(function (source) {
         for (var key in source) {
             variables[key] = source[key];
         }
     });
-    
+
     output = [];
     for (var key in variables) {
-      if (joinedCliCommands.indexOf(key)==-1){	
-	output.push(key,variables[key]);	
+      if (joinedCliCommands.indexOf(key)==-1){
+	output.push(key,variables[key]);
       }else{
 	output.push(key + variables[key]);
       }
@@ -57,7 +57,7 @@ function saveconfig(config){
     } else {
       console.log("JSON saved to " + outputFilename);
     }
-  }); 
+  });
 }
 
 function savesettings(){
