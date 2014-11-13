@@ -67,6 +67,7 @@ GameServer.prototype.turnon = function(){
 	this.ps = pty.spawn(this.exe, this.commandline, {cwd: this.config.path});
 
 	this.setStatus(STARTING);
+	console.log("Starting server for "+ self.config.user +" ("+ self.config.name +")");
 
 	this.pid = this.ps.pid;
 
@@ -76,34 +77,33 @@ GameServer.prototype.turnon = function(){
 		if (self.status == STARTING){
 			if (output.indexOf(self.plugin.started_trigger) !=-1){
 				self.setStatus(ON);
-				//console.log("Started server for "+ this.config.user +" ("+ this.config.name +")");
 				self.queryCheck = setInterval(self.query, 10000, self);
 				self.statCheck = setInterval(self.procStats, 10000, self);
 				self.usagestats = {};
 				self.emit('started');
-				console.log("Started server for "+ this.config.user +" ("+ this.config.name +")");
+				console.log("Started server for "+ self.config.user +" ("+ self.config.name +")");
 			}
 		}
 	});
 
 	this.ps.on('exit', function(){
 		if (self.status == STOPPING){
-		console.log("Stopping server for "+ this.config.user +" ("+ this.config.name +")");
-		self.setStatus(OFF);
-		self.emit('off');
-	    return;
+			console.log("Stopping server for "+ self.config.user +" ("+ self.config.name +")");
+			self.setStatus(OFF);
+			self.emit('off');
+	    	return;
 		}
 
 		if (self.status == ON || self.status == STARTING){
-		console.log("Server appears to have crashed for "+ this.config.user +" ("+ this.config.name +")");
-		self.setStatus(OFF);
-		self.emit('off');
-		self.emit('crash');
+			console.log("Server appears to have crashed for "+ self.config.user +" ("+ self.config.name +")");
+			self.setStatus(OFF);
+			self.emit('off');
+			self.emit('crash');
 		}
 	});
 
 	this.on('crash', function(){
-		console.log("Restarting server after crash for "+ this.config.user +" ("+ this.config.name +")");
+		console.log("Restarting server after crash for "+ self.config.user +" ("+ self.config.name +")");
 		if (self.status == ON){
 		self.restart();
 		}
@@ -123,9 +123,7 @@ GameServer.prototype.turnoff = function(){
 	clearTimeout(self.queryCheck);
 	if (!self.status == OFF){
 		self.setStatus(STOPPING);
-		console.log(this.config.name + ' is stopping');
-		self.kill;
-		self.setStatus(OFF);
+		self.kill();
 	}else{
 		self.emit('off');
 	}
@@ -167,10 +165,10 @@ GameServer.prototype.query = function(self){
 
 GameServer.prototype.procStats = function(self){
 	usage.lookup(self.pid, {keepHistory: true}, function(err, result) {
-	// TODO : Return as % of os.totalmem() (optional)
-	// TODO : Return as % of ram max setting
-	self.usagestats = {"memory":result.memory, "cpu":Math.round(result.cpu)};
-	self.emit('processStats');
+		// TODO : Return as % of os.totalmem() (optional)
+		// TODO : Return as % of ram max setting
+		self.usagestats = {"memory":result.memory, "cpu":Math.round(result.cpu)};
+		self.emit('processStats');
 	});
 };
 
@@ -206,9 +204,9 @@ GameServer.prototype.kill = function(){
 
 GameServer.prototype.send = function(data){
 	if (this.status == ON || this.status == STARTING){
-	this.ps.write(data + '\n');
+		this.ps.write(data + '\n');
 	}else{
-	throw new Error('Server turned off');
+		throw new Error('Server turned off');
 	}
 };
 
