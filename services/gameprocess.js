@@ -75,6 +75,11 @@ GameServer.prototype.turnon = function(){
 		output = data.toString();
 		self.emit("console", output);
 		if (self.status == STARTING){
+			if (output.indexOf(self.plugin.eula_trigger) !=-1){
+				self.setStatus(OFF);
+				self.emit('crash');
+				console.log("Server " + self.config.name + " needs to accept EULA");
+			}
 			if (output.indexOf(self.plugin.started_trigger) !=-1){
 				self.setStatus(ON);
 				self.queryCheck = setInterval(self.query, 10000, self);
