@@ -94,7 +94,6 @@ restserver.get('/gameservers/:id', function (req, res, next){
 	res.send(service.info());
 });
 
-
 restserver.put('/gameservers/:id', function info(req, res, next){
 	if (!restauth(req, req.params.id, "service:update")){res = unauthorized(res); return next();}
 	try {
@@ -107,7 +106,6 @@ restserver.put('/gameservers/:id', function info(req, res, next){
 		res.send(service.info());
 	}
 });
-
 
 restserver.get('/gameservers/:id/on', function on(req, res, next){
 	if (!restauth(req, req.params.id, "service:power")){res = unauthorized(res); return next();}
@@ -129,16 +127,19 @@ restserver.get('/gameservers/:id/restart', function restart(req, res, next){
 	service.restart();
 	res.send('ok')
 });
+
 restserver.get('/gameservers/:id/configlist', function configlist(req, res, next){
 	if (!restauth(req, req.params.id, "service:files")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
 	res.send(service.configlist());
 });
+
 restserver.get('/gameservers/:id/maplist', function maplist(req, res, next){
 	if (!restauth(req, req.params.id, "service:files")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
 	res.send(service.maplist());
 });
+
 restserver.get('/gameservers/:id/query', function query(req, res, next){
 	if (!restauth(req, req.params.id, "service:query")){res = unauthorized(res); return next();}
 	service = servers[req.params.id]; res.send(service.lastquery());
@@ -149,7 +150,6 @@ restserver.post('/gameservers/:id/console', function command(req, res, next){
 	if (!restauth(req, req.params.id, "service:console")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
 	res.send(service.send(req.params.command))
-
 });
 
 restserver.get('/gameservers/:id/addonsinstalled', function command(req, res, next){
@@ -179,7 +179,6 @@ restserver.put(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
 	service = servers[req.params[0]];res.send(service.downloadfile(req.params['url'], req.params[1]));
 	}
 });
-
 
 restserver.get('/gameservers/:id/gamemodes', function command(req, res, next){
 	if (!restauth(req, req.params.id, "gamemodes:get")){res = unauthorized(res); return next();}

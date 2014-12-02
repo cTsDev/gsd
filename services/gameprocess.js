@@ -28,16 +28,16 @@ function GameServer(config) {
 	this.commandline = merge(this.plugin.joined, this.variables);
 	this.exe = this.plugin.exe;
 
-	if ('gameport' in this.config && this.config.gameport != 0){
-	this.gameport = this.config.gameport
+	if ('gameport' in this.config && this.config.gameport != 0) {
+		this.gameport = this.config.gameport
 	}else{
-	this.gameport = this.plugin.defaultPort;
+		this.gameport = this.plugin.defaultPort;
 	}
 
-	if ('gamehost' in this.config && this.config.gamehost != ""){
-	this.gamehost = this.config.gamehost
+	if ('gamehost' in this.config && this.config.gamehost != "") {
+		this.gamehost = this.config.gamehost
 	}else{
-	this.gamehost = getIPAddress();
+		this.gamehost = getIPAddress();
 	}
 }
 
@@ -295,7 +295,6 @@ GameServer.prototype.installgamemode = function installgamemode(){
 	managerlocation = pathlib.join(__dirname,"gamemodes",self.config.plugin,"gamemodemanager");
 	if (self.status == ON){
 	self.turnoff();
-	console.log("HERE");
 	}
 	self.setStatus(CHANGING_GAMEMODE);
 	console.log(self.config.path)
