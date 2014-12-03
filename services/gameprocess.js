@@ -119,6 +119,7 @@ GameServer.prototype.turnon = function(){
 		clearInterval(self.queryCheck);
 		clearInterval(self.statCheck);
 		self.usagestats = {};
+		self.querystats = {};
 		usage.clearHistory(self.pid);
 		self.pid = undefined;
 	});
@@ -180,8 +181,8 @@ GameServer.prototype.procStats = function(self){
 };
 
 GameServer.prototype.lastquery = function(self){
+	self.querystats = {"type":self.plugin.type, "name":self.plugin.hostname, "version":self.plugin.version, "plugins":self.plugin.plugins, "numplayers":self.plugin.numplayers, "maxplayers":self.plugin.maxplayers, "players":self.plugin.players}
 	self.emit('query');
-	return {"type":self.plugin.type, "name":self.plugin.hostname, "version":self.plugin.version, "plugins":self.plugin.plugins, "numplayers":self.plugin.numplayers, "maxplayers":self.plugin.maxplayers, "players":self.plugin.players}
 };
 
 GameServer.prototype.configlist = function(){
