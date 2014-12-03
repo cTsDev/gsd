@@ -82,7 +82,7 @@ GameServer.prototype.turnon = function(){
 			}
 			if (output.indexOf(self.plugin.started_trigger) !=-1){
 				self.setStatus(ON);
-				self.queryCheck = setInterval(self.lastquery, 10000, self);
+				self.queryCheck = setInterval(self.query, 1000, self);
 				self.statCheck = setInterval(self.procStats, 10000, self);
 				self.usagestats = {};
 				self.querystats = {};
@@ -181,8 +181,7 @@ GameServer.prototype.procStats = function(self){
 };
 
 GameServer.prototype.lastquery = function(self){
-	self.querystats = {"type":this.type, "name":this.hostname, "version":this.version, "plugins":this.plugins, "numplayers":this.numplayers, "maxplayers":this.maxplayers, "players":this.players}
-	self.emit('query');
+	return {"type":this.type, "name":this.hostname, "version":this.version, "plugins":this.plugins, "numplayers":this.numplayers, "maxplayers":this.maxplayers, "players":this.players}
 };
 
 GameServer.prototype.configlist = function(){

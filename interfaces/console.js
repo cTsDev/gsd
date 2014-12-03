@@ -25,7 +25,7 @@ GameServer.prototype.initconsole = function(index){
 	});
 
 	this.on('query', function(data) {
-		self.console.emit('query', {"query":self.querystats});
+		self.console.emit('query', {"query":self.lastquery()});
 	});
 
 
