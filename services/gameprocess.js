@@ -204,7 +204,7 @@ GameServer.prototype.addonlist = function(){
 };
 
 GameServer.prototype.info = function(){
-	return {"query":this.lastquery(), "config":this.config, "status":this.status, "pid":this.pid, "process":this.usagestats, "variables":this.variables}
+	return {"query":this.querystats, "config":this.config, "status":this.status, "pid":this.pid, "process":this.usagestats, "variables":this.variables}
 };
 
 
