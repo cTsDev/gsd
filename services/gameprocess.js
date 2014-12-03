@@ -119,7 +119,6 @@ GameServer.prototype.turnon = function(){
 		clearInterval(self.queryCheck);
 		clearInterval(self.statCheck);
 		self.usagestats = {};
-		self.querystats = {};
 		usage.clearHistory(self.pid);
 		self.pid = undefined;
 	});
@@ -181,14 +180,7 @@ GameServer.prototype.procStats = function(self){
 };
 
 GameServer.prototype.lastquery = function(self){
-
-	var exec = require('child_process').exec;
-	exec('gamedig --type '+self.config.plugin+' --host '+self.gamehost+' --port '+self.gameport, function (error, stdout, stderr) {
-		var digger = JSON.parse(stdout);
-		self.querystats = {"type":digger.query.type, "name":digger.raw.hostname, "version":digger.raw.version, "plugins":digger.raw.plugins, "numplayers":digger.raw.numplayers, "maxplayers":digger.raw.maxplayers, "players":digger.players};
-		self.emit('query');
-	});
-
+	return {"motd":this.hostname, "numplayers":this.numplayers, "maxplayers":this.maxplayers, "lastquery":this.lastquerytime, "map":this.map, "players":this.players}
 };
 
 GameServer.prototype.configlist = function(){

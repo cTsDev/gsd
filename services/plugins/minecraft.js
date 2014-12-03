@@ -20,11 +20,13 @@ settings.defaultPort = 25565;
 settings.joined = ["-Xmx", "-XX:PermSize=", "-Djline.terminal="];
 
 settings.query = function query(self) {
+	ip = self.gamehost;
+	port = parseInt(self.gameport);
 	Gamedig.query(
 	{
 		type: 'minecraft',
-		host: self.gamehost,
-		port: self.gameport
+		host: ip,
+		port: port
 	},
 	function(res) {
 		if(res.error) {
@@ -35,6 +37,7 @@ settings.query = function query(self) {
 			self.maxplayers = res['maxplayers'];
 			self.map        = res['map'];
 			self.players    = res['players'];
+			self.plugins	= res['raw']['plugins'];
 			self.lastquerytime = new Date().getTime();
 		}
 	});
