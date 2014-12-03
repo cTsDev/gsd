@@ -14,7 +14,7 @@ settings.name = "Minecraft"
 settings.stop_command = 'stop'
 settings.started_trigger = ')! For help, type "help" or "?"'
 settings.eula_trigger = 'Go to eula.txt for more info.'
-settings.defaultvariables = {"-Djline.terminal=":"jline.UnsupportedTerminal", "-Xmx":"512M", "-jar":"minecraft_server.jar"}
+settings.defaultvariables = {"-Djline.terminal=":"jline.UnsupportedTerminal"}
 settings.exe = "java",
 settings.defaultPort = 25565;
 settings.joined = ["-Xmx", "-XX:PermSize=", "-Djline.terminal="];
