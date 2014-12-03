@@ -164,7 +164,8 @@ GameServer.prototype.setStatus = function(status){
 
 
 GameServer.prototype.query = function(self){
-	r = {"motd":this.hostname, "numplayers":this.numplayers, "maxplayers":this.maxplayers, "lastquery":this.lastquerytime, "map":this.map, "players":this.players};
+	r = self.plugin.query(self);
+	self.emit('query');
 	return r;
 };
 
