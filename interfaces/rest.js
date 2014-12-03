@@ -123,6 +123,13 @@ restserver.get('/gameservers/:id/off', function off(req, res, next){
 	res.send('ok')
 });
 
+restserver.get('/gameservers/:id/kill', function off(req, res, next){
+	if (!restauth(req, req.params.id, "service:power")){res = unauthorized(res); return next();}
+	service = servers[req.params.id];
+	service.killpid();
+	res.send('ok')
+});
+
 restserver.get('/gameservers/:id/restart', function restart(req, res, next){
 	if (!restauth(req, req.params.id, "service:power")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];

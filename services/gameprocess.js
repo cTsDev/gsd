@@ -136,6 +136,17 @@ GameServer.prototype.turnoff = function(){
 	}
 };
 
+GameServer.prototype.killpid = function(){
+	var self = this;
+	clearTimeout(self.queryCheck);
+	if (!self.status == OFF){
+		self.setStatus(STOPPING);
+		self.ps.kill();
+	}else{
+		self.emit('off');
+	}
+};
+
 GameServer.prototype.create = function(){
 	var config = this.config;
 	var self = this;
