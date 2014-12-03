@@ -19,20 +19,20 @@ GameServer.prototype.initconsole = function(index){
   this.on('console', function(data){
     self.console.emit('console', {'l':data.toString()});
   });
-    
+
   this.on('statuschange', function(data) {
     self.console.emit('statuschange', {'status':self.status});
   });
-    
+
   this.on('query', function(data) {
-    self.console.emit('query', {"query":self.lastquery()});
+    self.console.emit('query', {"query":self.querystats});
   });
-    
+
 
   this.on('processStats', function(data) {
     self.console.emit('process', {"process":self.usagestats});
   });
-    
+
   this.console.on('sendconsole', function (command) {
     self.send(command);
   });
