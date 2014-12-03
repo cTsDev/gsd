@@ -19,28 +19,27 @@ settings.exe = "java",
 settings.defaultPort = 25565;
 settings.joined = ["-Xmx", "-XX:PermSize=", "-Djline.terminal="];
 
-settings.query = function query(self){
+settings.query = function query(self) {
 	Gamedig.query(
 	{
 		type: 'minecraft',
 		host: self.gamehost,
-	port: self.gameport
+		port: self.gameport
 	},
 	function(res) {
-		if(res.error){
-	  self.emit('crash');
-	}else{
-	  self.hostname = res['name'];
-	  self.numplayers = res['players'].length;
-	  self.maxplayers = res['maxplayers'];
-	  self.map        = res['map'];
-	  self.players    = res['players'];
-	  self.lastquerytime = new Date().getTime();
-	}
-	}
-);
-
+		if(res.error) {
+	  		self.emit('crash');
+		}else{
+			self.hostname 	= res['name'];
+			self.numplayers = res['players'].length;
+			self.maxplayers = res['maxplayers'];
+			self.map        = res['map'];
+			self.players    = res['players'];
+			self.lastquerytime = new Date().getTime();
+		}
+	});
 };
+
 settings.commands = {
 	'player':{
 	'kick':'kick {{player}}',
