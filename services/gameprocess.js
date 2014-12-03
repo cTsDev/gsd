@@ -180,6 +180,7 @@ GameServer.prototype.procStats = function(self){
 };
 
 GameServer.prototype.lastquery = function(self){
+	self.emit('query');
 	return {"type":self.plugin.type, "name":self.plugin.hostname, "version":self.plugin.version, "plugins":self.plugin.plugins, "numplayers":self.plugin.numplayers, "maxplayers":self.plugin.maxplayers, "players":self.plugin.players}
 };
 
