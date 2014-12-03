@@ -38,6 +38,8 @@ settings.query = function query(self) {
 			self.map        = res['map'];
 			self.players    = res['players'];
 			self.plugins	= res['raw']['plugins'];
+			self.version	= res['raw']['version'];
+			self.type		= res['raw']['type'];
 			self.lastquerytime = new Date().getTime();
 		}
 	});

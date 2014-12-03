@@ -180,7 +180,7 @@ GameServer.prototype.procStats = function(self){
 };
 
 GameServer.prototype.lastquery = function(self){
-	return {"motd":this.hostname, "numplayers":this.numplayers, "maxplayers":this.maxplayers, "lastquery":this.lastquerytime, "map":this.map, "players":this.players}
+	return {"type":self.plugin.type, "name":self.plugin.hostname, "version":self.plugin.version, "plugins":self.plugin.plugins, "numplayers":self.plugin.numplayers, "maxplayers":self.plugin.maxplayers, "players":self.plugin.players}
 };
 
 GameServer.prototype.configlist = function(){
