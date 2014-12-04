@@ -16,6 +16,9 @@ var getIPAddress = require("../utls.js").getIPAddress;
 var savesettings = require("../utls.js").savesettings;
 var async = require('async');
 var utls = require("../utls.js");
+var targz = require('tar.gz');
+var fs = require('fs');
+var unzip = require('unzip');
 
 var OFF = 0; ON = 1; STARTING = 2; STOPPING = 3; CHANGING_GAMEMODE = 4;
 
@@ -28,16 +31,17 @@ function GameServer(config) {
 	this.commandline = merge(this.plugin.joined, this.variables);
 	this.exe = this.plugin.exe;
 
-	if ('gameport' in this.config && this.config.gameport != 0){
-	this.gameport = this.config.gameport
+	if ('gameport' in this.config && this.config.gameport != 0) {
+		this.gameport = this.config.gameport
 	}else{
-	this.gameport = this.plugin.defaultPort;
+		this.gameport = this.plugin.defaultPort;
 	}
 
-	if ('gamehost' in this.config && this.config.gamehost != ""){
-	this.gamehost = this.config.gamehost
+
+	if ('gamehost' in this.config && this.config.gamehost != "") {
+		this.gamehost = this.config.gamehost
 	}else{
-	this.gamehost = getIPAddress();
+		this.gamehost = getIPAddress();
 	}
 }
 
@@ -55,7 +59,7 @@ GameServer.prototype.updatevariables = function(variables, replace){
 };
 
 
-GameServer.prototype.turnon = function(){
+GameServer.prototype.turnon = function() {
 	var self = this;
 	// Shouldn't happen, but does on a crash after restart
 	if (!this.status == OFF){
@@ -230,7 +234,7 @@ GameServer.prototype.send = function(data){
 };
 
 GameServer.prototype.console = function Console(){
-
+	//TODO : Remove?
 };
 
 
@@ -246,43 +250,72 @@ GameServer.prototype.dir = function dir(f){
 	files = [];
 
 	listing.forEach(function (fileName){
-	if (fileName[0] == ".") return;
+		if (fileName[0] == ".") return;
 
-	stat = fs.statSync(pathlib.join(folder, fileName));
+		stat = fs.statSync(pathlib.join(folder, fileName));
 
-	if (stat.isFile())
-		filetype = "file";
-	else if (stat.isDirectory())
-		filetype = "folder";
-	else if (stat.isSymbolicLink())
-		filetype = "symlink";
-	else
-		filetype = "other";
+		if (stat.isFile())
+			filetype = "file";
+		else if (stat.isDirectory())
+			filetype = "folder";
+		else if (stat.isSymbolicLink())
+			filetype = "symlink";
+		else
+			filetype = "other";
 
-	file = {"name":fileName, "ctime":stat.ctime, "mtime":stat.mtime, "size":stat.size, "filetype":filetype};
-	files.push(file);
+		file = {"name":fileName, "ctime":stat.ctime, "mtime":stat.mtime, "size":stat.size, "filetype":filetype};
+		files.push(file);
 	});
 
 	return files;
 
 };
 
-GameServer.prototype.writefile = function writefile(f, contents){
+GameServer.prototype.writefile = function writefile(f, contents) {
+
 	file = pathlib.join(this.config.path, pathlib.normalize(f));
 	fs.writeFile(file, contents);
+
 };
 
-GameServer.prototype.downloadfile = function downloadfile(url, path){
-	path = pathlib.join(this.config.path, pathlib.normalize(path));
+GameServer.prototype.downloadfile = function downloadfile(url, path) {
 
-	//TODO : Work out when to extract (zip etc...) , { extract: true }
+	path = pathlib.join(this.config.path, pathlib.normalize(path));
 	download(url, path);
 	return 'ok';
+
 };
 
+GameServer.prototype.zipfile = function zipfile(file) {
+
+	path = pathlib.join(this.config.path, pathlib.normalize(file));
+	loc = pathlib.join(this.config.path, pathlib.normalize(file+".tar.gz"));
+	console.log("   To: "+ loc);
+	compress = new targz().compress(path, loc, function(err) {if(err) console.log(err); } );
+
+};
+
+GameServer.prototype.unzipfile = function unzipfile(style, file) {
+
+	path = pathlib.join(this.config.path, pathlib.normalize(file));
+
+	if(style == ".zip") {
+
+		fs.createReadStream(path).pipe(unzip.Extract({ path: path.slice(0,-file.length) }));
+
+	}else if(style == ".gz") {
+
+		decompress = new targz().extract(path, path.slice(0,-7), function(err){
+			if(err)
+				console.log(err);
+		});
+
+	}
+
+};
 
 GameServer.prototype.deletefile = function Console(){
-
+	//TODO : Remove?
 };
 
 GameServer.prototype.plugincategories = function(callback){
