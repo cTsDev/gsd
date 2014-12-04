@@ -17,6 +17,8 @@ var savesettings = require("../utls.js").savesettings;
 var async = require('async');
 var utls = require("../utls.js");
 var targz = require('tar.gz');
+var fs = require('fs');
+var unzip = require('unzip');
 
 var OFF = 0; ON = 1; STARTING = 2; STOPPING = 3; CHANGING_GAMEMODE = 4;
 
@@ -34,6 +36,7 @@ function GameServer(config) {
 	}else{
 		this.gameport = this.plugin.defaultPort;
 	}
+
 
 	if ('gamehost' in this.config && this.config.gamehost != "") {
 		this.gamehost = this.config.gamehost
@@ -269,16 +272,18 @@ GameServer.prototype.dir = function dir(f){
 };
 
 GameServer.prototype.writefile = function writefile(f, contents) {
+
 	file = pathlib.join(this.config.path, pathlib.normalize(f));
 	fs.writeFile(file, contents);
+
 };
 
 GameServer.prototype.downloadfile = function downloadfile(url, path) {
-	path = pathlib.join(this.config.path, pathlib.normalize(path));
 
-	//TODO : Work out when to extract (zip etc...) , { extract: true }
+	path = pathlib.join(this.config.path, pathlib.normalize(path));
 	download(url, path);
 	return 'ok';
+
 };
 
 GameServer.prototype.zipfile = function zipfile(file) {
@@ -290,8 +295,23 @@ GameServer.prototype.zipfile = function zipfile(file) {
 
 };
 
-GameServer.prototype.unzipfile = function unzipfile() {
-	//TODO : Unzip selected file
+GameServer.prototype.unzipfile = function unzipfile(style, file) {
+
+	path = pathlib.join(this.config.path, pathlib.normalize(file));
+
+	if(style == ".zip") {
+
+		fs.createReadStream(path).pipe(unzip.Extract({ path: path.slice(0,-file.length) }));
+
+	}else if(style == ".gz") {
+
+		decompress = new targz().extract(path, path.slice(0,-7), function(err){
+			if(err)
+				console.log(err);
+		});
+
+	}
+
 };
 
 GameServer.prototype.deletefile = function Console(){

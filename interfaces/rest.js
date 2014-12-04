@@ -7,6 +7,7 @@ var saveconfig = require('../utls.js').saveconfig;
 var servers = require('../services/index.js').servers;
 var initServer = require('../services/index.js').initServer;
 var restserver = restify.createServer();
+var path = require('path');
 
 restserver.use(restify.bodyParser());
 restserver.use(restify.authorizationParser());
@@ -193,6 +194,13 @@ restserver.put(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
 	if ('zip' in req.params) {
 		service = servers[req.params[0]];
 		res.send(service.zipfile(req.params[1]));
+	}
+	if ('unzip' in req.params) {
+
+		service = servers[req.params[0]];
+		ext = path.extname(req.params[1]);
+		res.send(service.unzipfile(ext, req.params[1]));
+
 	}
 });
 
