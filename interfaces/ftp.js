@@ -36,12 +36,18 @@ if(fs.existsSync('ftps.pem') && fs.existsSync('ftps.key')){
     process.exit();
 }
 
+if(typeof ftpconfig.use_ssl == null) {
+    ftpconfig.use_ssl = true;
+}
+
 var options = {
     pasvPortRangeStart: 4000,
     pasvPortRangeEnd: 5000,
     getInitialCwd: function(user) {
         return "/"
     },
+    logLevel: -1,
+    tlsOnly: ftpconfig.use_ssl,
     tlsOptions: {
         key: tlsConfig.key,
         cert: tlsConfig.pem
@@ -64,8 +70,7 @@ try {
 }
 
 process.on('uncaughtException', function (err) {
-  console.error(err.stack);
-  console.log("** Uncaught Exception Occured with FTP. This is usally a result of a network disconnect or a connection reset. There is nothing to worry about. **");
+    return;
 });
 
 server.on('error', function (error) {
@@ -76,8 +81,6 @@ server.on('client:connected', function(conn) {
     var username;
     var serverId;
     var fullUsername;
-
-    console.log('Client connected from ' + conn.socket.remoteAddress);
 
     conn.on('command:user', function(user, success, failure) {
         if (user.indexOf("-") == -1){
@@ -109,26 +112,26 @@ server.on('client:connected', function(conn) {
                             if (hasPermission("ftp", res.authkey, serverId)){
                                 success(username + "-" + serverId);
                             }else{
-                                console.log("Failed to authenticate: authenticate key does not have permission for this action.");
+                                console.log("(FTP) Failed to authenticate: authenticate key does not have permission for this action.");
                                 failure();
                             }
                         }else{
-                            console.log("Failed to authenticate: missing authentication key.");
+                            console.log("(FTP) Failed to authenticate: missing authentication key.");
                             failure();
                         }
                     } catch (ex) {
-                        console.log("Failed to authenticate: "+ ex);
+                        console.log("(FTP) Failed to authenticate: "+ ex);
                         failure();
                     }
                 }else{
-                    console.log("Failed to authenticate: Server returned error code.");
+                    console.log("(FTP) Failed to authenticate: Server returned error code.");
                     console.log(response);
                     console.log(error);
                     failure();
                 }
             });
         }else{
-            console.log("Failed to authenticate: no authentication URL provided.");
+            console.log("(FTP) Failed to authenticate: no authentication URL provided.");
             failure();
         }
     });
