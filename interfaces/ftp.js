@@ -98,6 +98,7 @@ server.on('client:connected', function(conn) {
         success();
     });
 
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
     conn.on('command:pass', function(pass, success, failure) {
         if (ftpconfig.authurl != null){
             request.post(ftpconfig.authurl, {form:{username:fullUsername, password:pass}}, function (error, response, body) {
