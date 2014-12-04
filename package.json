@@ -1,39 +1,40 @@
 {
-  "name": "GameServerDaemon",
-  "preferGlobal": true,
-  "version": "0.3.0",
-  "author": "Eoin <eoin@gametainers.com>",
-  "description": "a simple daemon to manage game servers",
-  "bin": {
-    "gsd": "gsd"
-  },
-  "scripts": {
-    "start": "node gsd.js"
-  },
-  "main": "gsd.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/gametainers/gsd.git"
-  },
-  "dependencies" : {
-    "mc-ping" : "",
-    "gamedig" : "",
-    "glob":"",
-    "restify":"",
-    "socket.io":"",
-    "download":"",
-    "mcquery":"",
-    "usage":"",
-    "pty.js":"",
-    "async":"",
-    "ncp":"",
-    "ftpd":"git://github.com/sstur/nodeftpd.git",
-    "request":"",
-    "bukget":"git://github.com/gametainers/bukget.js.git",
-    "properties":"",
-    "js-yaml":""
-  },
-  "engines": {
-    "node": ">=0.6"
-  }
+	"name": "GameServerDaemon",
+	"preferGlobal": true,
+	"version": "0.3.0",
+	"author": "Eoin <eoin@gametainers.com>",
+	"description": "a simple daemon to manage game servers",
+	"bin": {
+		"gsd": "gsd"
+	},
+	"scripts": {
+		"start": "node gsd.js"
+	},
+		"main": "gsd.js",
+		"repository": {
+		"type": "git",
+		"url": "https://github.com/gametainers/gsd.git"
+	},
+	"dependencies" : {
+		"mc-ping" : "",
+		"gamedig" : "",
+		"glob":"",
+		"restify":"",
+		"socket.io":"",
+		"download":"",
+		"mcquery":"",
+		"usage":"",
+		"pty.js":"",
+		"async":"",
+		"ncp":"",
+		"ftpd":"git://github.com/sstur/nodeftpd.git",
+		"request":"",
+		"bukget":"git://github.com/gametainers/bukget.js.git",
+		"properties":"",
+		"js-yaml":"",
+		"node-zip":""
+	},
+		"engines": {
+		"node": ">=0.6"
+	}
 }
