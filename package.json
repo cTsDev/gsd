@@ -32,7 +32,7 @@
 		"bukget":"git://github.com/gametainers/bukget.js.git",
 		"properties":"",
 		"js-yaml":"",
-		"node-zip":""
+		"tar.gz":""
 	},
 		"engines": {
 		"node": ">=0.6"
