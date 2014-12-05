@@ -20,6 +20,14 @@
             "user": "My_FTP_User",
             "overide_command_line": "",
             "path": "/home/My_FTP_User",
+            "build": {
+                "install_dir" => "/mnt/MC/CraftBukkit/",
+                "disk": {
+                    "hard": 10240,
+                    "soft": 9216
+                },
+                "cpu": 0
+            },
             "variables": {
                 "-Djline.terminal=": "jline.UnsupportedTerminal",
                 "-Xmx": "512M",
