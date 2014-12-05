@@ -8,7 +8,7 @@ GameServer.prototype.initconsole = function(index){
 	this.console = io.of('/'+index);
 
 	this.console.use(function(socket, next){
-	if (hasPermission("console", socket.handshake.query.token, index)){
+	if (hasPermission("s:console", socket.handshake.query.token, index)){
 		next();
 	}else{
 		next(new Error("No authentication"));
