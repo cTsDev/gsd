@@ -54,7 +54,7 @@ restserver.get('/', function info(req, res, next){
 	settings = plugins[key];
 	_plugins[settings.name] = {"file":key.slice(0, -3)};
 	}
-	response = {'gsd_version':"0.003", 'plugins':_plugins, 'settings':{'consoleport':config.daemon.consoleport}};
+	response = {'gsd_version':"0.1.1", 'plugins':_plugins, 'settings':{'consoleport':config.daemon.consoleport}};
 	res.send(response);
 });
 
@@ -81,7 +81,7 @@ restserver.post('/gameservers/', function info(req, res, next){
 });
 
 restserver.del('/gameservers/:id', function info(req, res, next){
-	if (!restauth(req, req.params.id, "s:delete")){res = unauthorized(res); return next();}
+	if (!restauth(req, req.params.id, "g:delete")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
 	// TODO: if on, turn off
 	service.delete();	var ftpd = require('ftpd');
@@ -98,7 +98,7 @@ restserver.get('/gameservers/:id', function (req, res, next){
 
 
 restserver.put('/gameservers/:id', function info(req, res, next){
-	if (!restauth(req, req.params.id, "s:update")){res = unauthorized(res); return next();}
+	if (!restauth(req, req.params.id, "g:update")){res = unauthorized(res); return next();}
 	try {
 		service = servers[req.params.id];
 		service.updatevariables(JSON.parse(req.params['variables']), true);
@@ -139,12 +139,12 @@ restserver.get('/gameservers/:id/restart', function restart(req, res, next){
 	res.send('ok')
 });
 restserver.get('/gameservers/:id/configlist', function configlist(req, res, next){
-	if (!restauth(req, req.params.id, "s:files")){res = unauthorized(res); return next();}
+	if (!restauth(req, req.params.id, "s:files:get")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
 	res.send(service.configlist());
 });
 restserver.get('/gameservers/:id/maplist', function maplist(req, res, next){
-	if (!restauth(req, req.params.id, "s:files")){res = unauthorized(res); return next();}
+	if (!restauth(req, req.params.id, "s:files:get")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
 	res.send(service.maplist());
 });
@@ -168,7 +168,7 @@ restserver.get('/gameservers/:id/addonsinstalled', function command(req, res, ne
 });
 
 restserver.get(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
-	if (!restauth(req, req.params[0], "s:files")){res = unauthorized(res); return next();}
+	if (!restauth(req, req.params[0], "s:files:get")){res = unauthorized(res); return next();}
 	service = servers[req.params[0]];
 	res.send({'contents':service.readfile(req.params[1])});
 });
@@ -180,7 +180,7 @@ restserver.get(/^\/gameservers\/(\d+)\/folder\/(.+)/, function(req, res, next) {
 });
 
 restserver.put(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
-	if (!restauth(req, req.params[0], "s:files")) {
+	if (!restauth(req, req.params[0], "s:files:put")) {
 		res = unauthorized(res);
 		return next();
 	}

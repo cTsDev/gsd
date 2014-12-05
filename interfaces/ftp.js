@@ -109,10 +109,10 @@ server.on('client:connected', function(conn) {
                     try {
                         res = JSON.parse(body);
                         if (res.authkey != null){
-                            if (hasPermission("ftp", res.authkey, serverId)){
+                            if (hasPermission("s:ftp", res.authkey, serverId)){
                                 success(username + "-" + serverId);
                             }else{
-                                console.log("(FTP) Failed to authenticate: authenticate key does not have permission for this action.");
+                                console.log("(FTP) Failed to authenticate: authentication key does not have permission for this action.");
                                 failure();
                             }
                         }else{
