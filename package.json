@@ -3,6 +3,18 @@
 	"preferGlobal": true,
 	"version": "0.1.1",
 	"author": "Eoin <eoin@gametainers.com>",
+	"maintainers": [
+		{
+			"name": "Dane Everitt",
+			"email": "dane@daneeveritt.com",
+			"web": "https://github.com/DaneEveritt"
+		},
+		{
+			"name": "Douglas DeVicariis",
+			"email": "kootg04@gmail.com",
+			"web": "https://github.com/koo04"
+		}
+	],
 	"description": "a simple daemon to manage game servers",
 	"bin": {
 		"gsd": "gsd"
@@ -10,8 +22,8 @@
 	"scripts": {
 		"start": "node gsd.js"
 	},
-		"main": "gsd.js",
-		"repository": {
+	"main": "gsd.js",
+	"repository": {
 		"type": "git",
 		"url": "https://github.com/gametainers/gsd.git"
 	},
@@ -36,7 +48,7 @@
 		"usage" : "",
 		"userid" : ""
 	},
-		"engines": {
+	"engines": {
 		"node": ">=0.6"
 	}
 }
