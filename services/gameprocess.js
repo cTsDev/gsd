@@ -16,8 +16,8 @@ var getIPAddress = require("../utls.js").getIPAddress;
 var savesettings = require("../utls.js").savesettings;
 var async = require('async');
 var utls = require("../utls.js");
+var userid = require('userid');
 var targz = require('tar.gz');
-var fs = require('fs');
 var unzip = require('unzip');
 
 var OFF = 0; ON = 1; STARTING = 2; STOPPING = 3; CHANGING_GAMEMODE = 4;
@@ -68,12 +68,29 @@ GameServer.prototype.turnon = function() {
 	}
 
 	this.plugin.preflight(this);
-	this.ps = pty.spawn(this.exe, this.commandline, {cwd: this.config.path});
+
+	this.ps = pty.spawn(this.exe, this.commandline, {cwd: this.config.path, uid: userid.uid(self.config.user), gid: userid.gid("gsdusers")});
+	this.pid = this.ps.pid;
 
 	this.setStatus(STARTING);
 	console.log("Starting server for "+ self.config.user +" ("+ self.config.name +")");
 
-	this.pid = this.ps.pid;
+	try {
+
+		this.cpu_limit = parseInt(this.config.build.cpu);
+
+		if(this.cpu_limit > 0) {
+
+			exec('cpulimit -p ' + this.ps.pid + ' -l ' + this.cpu_limit + ' -d', function(error, stdout, stderr) {
+				console.log("Beginning CPU Limiting (" + this.cpu_limit + "%) for process: " + this.ps.pid);
+				console.log("Output: " + stdout);
+			});
+
+		}
+
+	} catch(ex) {
+		console.log("Assumed outdated GSD config. No CPU Limit defined for server!");
+	}
 
 	this.ps.on('data', function(data){
 		output = data.toString();
@@ -163,10 +180,8 @@ GameServer.prototype.create = function(){
 		self.plugin.install(self, function cb(){callback(null);});
 	},
 	function(callback) {
-		fixperms(self);
-		callback(null);
-	}
-	]);
+		fixperms(config.user, config.path, function cb(){callback(null);});
+	}]);
 };
 
 GameServer.prototype.delete = function(){
@@ -190,7 +205,7 @@ GameServer.prototype.procStats = function(self){
 	usage.lookup(self.pid, {keepHistory: true}, function(err, result) {
 		// TODO : Return as % of os.totalmem() (optional)
 		// TODO : Return as % of ram max setting
-		self.usagestats = {"memory":result.memory, "cpu":Math.round(result.cpu)};
+		self.usagestats = {"memory": result.memory, "cpu": Math.round(result.cpu)};
 		self.emit('processStats');
 	});
 };

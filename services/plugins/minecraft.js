@@ -55,32 +55,36 @@ settings.commands = {
 };
 
 settings.preflight = function(server){
-	var jarPath = pathlib.join(server.config.path, server.variables['-jar']);
+	var jarPath = pathlib.join(server.config.path, server.config.variables['-jar']);
 
 	if (!fs.existsSync(jarPath)){
-	throw new Error("Jar doesn\'t exist : " + server.variables['-jar']);
+	throw new Error("Jar doesn\'t exist : " + server.config.variables['-jar']);
 	}
 };
 
 settings.install = function(server, callback){
-	copyFolder(server, "/mnt/MC/CraftBukkit/", function(){
-		var settingsPath = pathlib.join(server.config.path, "server.properties");
 
-		if (!fs.existsSync(settingsPath)){
-			callback();
+	try {
+
+		if(typeof server.config.build.install_dir == 'undefined') {
+			copyFolder(server, '/mnt/MC/CraftBukkit/', function(){ callback(); });
+		} else {
+			if(!fs.existsSync(server.config.build.install_dir)){
+				copyFolder(server, '/mnt/MC/CraftBukkit/', function(){ callback(); });
+			} else {
+				copyFolder(server, server.config.build.install_dir, function(){ callback(); });
+			}
 		}
 
-		var serverConfig = properties.parse(settingsPath, {path:true}, function (error, obj){
-
-		obj['enable-query'] = 'true';
-		obj['server-port'] = server.gameport;
-		obj['snooper-enabled'] = 'false';
-
-		properties.stringify(obj, {path:settingsPath}, function (error, obj){
 		callback();
-		});
-	});
-	})
+
+	} catch(ex) {
+
+		console.log("An error occured trying to copy over the files for the following server: "+ server.config.name);
+		console.log(ex);
+
+	}
+
 };
 
 settings.maplist = function maplist(self){
