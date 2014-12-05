@@ -1,7 +1,7 @@
 {
 	"name": "GameServerDaemon",
 	"preferGlobal": true,
-	"version": "0.3.0",
+	"version": "0.1.1",
 	"author": "Eoin <eoin@gametainers.com>",
 	"description": "a simple daemon to manage game servers",
 	"bin": {
