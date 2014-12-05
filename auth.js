@@ -10,7 +10,7 @@ function hasPermission(permission, key, service){
     service = parseInt(service);
     if (key in config.servers[service].keys){
 
-        if (config.servers[service].keys.indexOf(permission) >= 0){
+        if (config.servers[service].keys[key].indexOf(permission) >= 0){
             return true;
         }
 
