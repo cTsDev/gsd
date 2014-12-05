@@ -5,17 +5,25 @@ var fs = require('fs');
 var ncp = require('ncp').ncp;
 var format = require('util').format;
 var executeCommand = require('../utls').executeCommand;
+var userid = require('userid');
 
 function createUser(username, home, callback){
-  // TODO : check if user exists first
-  // useradd -m -d {0} -s /bin/bash -G exe {1}
-  command = format("useradd -m -d %s -s /bin/bash %s", home, username);
-  executeCommand(command, callback)
+
+    try {
+
+        console.log("Creating a server for "+ username );
+        command = format("useradd -m -d %s -s /bin/false -G gsdusers %s", home, username);
+        executeCommand(command, callback);
+
+    } catch(ex) {
+        console.log("Unable to create a user on the system.");
+    }
+
 }
 
 function deleteUser(username){
-  // TODO : check if user exists first
   command = format("userdel --remove-home %s", username);
+  // @TODO: Actually remove the server from config.json...
   executeCommand(command, callback)
 }
 
@@ -26,14 +34,8 @@ function linkDir(from_path, to_path, callback){
 }
 
 
-function fixperms(gameserver){
-  callback = function(){};
-
-  command = format("find %s -type d -exec chown %s {} \\;", from_path, to_path);
-  executeCommand(command, callback)
-
-  command = format("find %s -type d -exec chown %s {} \\;", from_path, to_path);
-  executeCommand(command, callback)
+function fixperms(user, path, callback){
+    executeCommand("chown -R "+ user +":gsdusers "+ path + user, callback);
 };
 
 function replaceFiles(base_folder, files, backing_folder, callback){
