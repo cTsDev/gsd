@@ -67,6 +67,10 @@ GameServer.prototype.turnon = function() {
 		return;
 	}
 
+	exec('killall --quiet --user '+ self.config.user, function(error, stdout, stderr) {
+		console.log("Killing all previous processes for "+self.config.user);
+	}
+
 	this.plugin.preflight(this);
 
 	this.ps = pty.spawn(this.exe, this.commandline, {cwd: this.config.path, uid: userid.uid(self.config.user), gid: userid.gid("gsdusers")});
