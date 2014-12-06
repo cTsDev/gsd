@@ -9,6 +9,7 @@ GameServer.prototype.initconsole = function(index){
 
 	this.console.use(function(socket, next){
 		var socket_token = socket.handshake.query.token;
+		next();
 	});
 
 
