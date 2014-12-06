@@ -155,7 +155,7 @@ restserver.get('/gameservers/:id/query', function query(req, res, next){
 });
 
 restserver.post('/gameservers/:id/console', function command(req, res, next){
-	if (!restauth(req, req.params.id, "s:console")){res = unauthorized(res); return next();}
+	if (!restauth(req, req.params.id, "s:console:send")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
 	res.send(service.send(req.params.command))
 

@@ -4,21 +4,21 @@ var hasPermission = require('../auth.js').hasPermission;
 var GameServer = require('../services/gameprocess.js');
 
 GameServer.prototype.initconsole = function(index){
+
 	var self = this;
 	this.console = io.of('/'+index);
 
 	this.console.use(function(socket, next){
-		var socket_token = socket.handshake.query.token;
-		next();
+		if (hasPermission("s:console", socket.handshake.query.token, index)){
+			next();
+		}else{
+			next(new Error("Not Authenticated for Socket"));
+		}
 	});
 
 	this.on('console', function(data){
 
-		if(hasPermission("s:socket:console", self.socket_token, index)) {
-			self.console.emit('console', {'l':data.toString()});
-		} else {
-			console.log("Failed to authenticate key at s:socket:console");
-		}
+		self.console.emit('console', {'l':data.toString()});
 
 	});
 
@@ -28,31 +28,13 @@ GameServer.prototype.initconsole = function(index){
 
 	this.on('query', function(data) {
 
-		if(hasPermission("s:socket:query", self.socket_token, index)) {
-			self.console.emit('query', {"query":self.lastquery()});
-		} else {
-			console.log("Failed to authenticate key at s:socket:query");
-		}
+		self.console.emit('query', {"query":self.lastquery()});
 
 	});
 
 	this.on('processStats', function(data) {
 
-		if(hasPermission("s:socket:stats", self.socket_token, index)) {
-			self.console.emit('process', {"process":self.usagestats});
-		} else {
-			console.log("Failed to authenticate key at s:socket:stats");
-		}
-
-	});
-
-	this.console.on('sendconsole', function (command) {
-
-		if(hasPermission("s:console", self.socket_token, index)) {
-			self.send(command);
-		} else {
-			console.log("Failed to authenticate key at s:console");
-		}
+		self.console.emit('process', {"process":self.usagestats});
 
 	});
 
