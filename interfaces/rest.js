@@ -8,6 +8,7 @@ var servers = require('../services/index.js').servers;
 var initServer = require('../services/index.js').initServer;
 var restserver = restify.createServer();
 var path = require('path');
+var debug = false;
 
 restserver.use(restify.bodyParser());
 restserver.use(restify.authorizationParser());

@@ -1,11 +1,21 @@
 var config = require('./config.json');
 
 require('./interfaces/console.js');
-require('./interfaces/rest.js');
+var rest = require('./interfaces/rest.js');
 require('./interfaces/ftp.js');
 
 var servers = require('./services');
 var exec = require('child_process').exec;
+
+process.argv.forEach(function(val, index, array) {
+
+	if(val == 'debug')
+	{
+		rest.debug = true;
+		console.info("Now running in debug mode!");
+	}
+
+});
 
 process.on('SIGINT', function() {
 

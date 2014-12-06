@@ -19,6 +19,7 @@ var utls = require("../utls.js");
 var userid = require('userid');
 var targz = require('tar.gz');
 var unzip = require('unzip');
+var log = require('../log.js');
 
 var OFF = 0; ON = 1; STARTING = 2; STOPPING = 3; CHANGING_GAMEMODE = 4;
 
@@ -73,7 +74,7 @@ GameServer.prototype.turnon = function() {
 	this.pid = this.ps.pid;
 
 	this.setStatus(STARTING);
-	console.log("Starting server for "+ self.config.user +" ("+ self.config.name +")");
+	log.debug("Starting server for "+ self.config.user +" ("+ self.config.name +")");
 
 	try {
 
@@ -109,6 +110,7 @@ GameServer.prototype.turnon = function() {
 				self.querystats = {};
 				self.emit('started');
 				console.log("Started server for "+ self.config.user +" ("+ self.config.name +")");
+				log.debug("test");
 			}
 		}
 	});
@@ -305,7 +307,6 @@ GameServer.prototype.zipfile = function zipfile(file) {
 
 	path = pathlib.join(this.config.path, pathlib.normalize(file));
 	loc = pathlib.join(this.config.path, pathlib.normalize(file+".tar.gz"));
-	console.log("   To: "+ loc);
 	compress = new targz().compress(path, loc, function(err) {if(err) console.log(err); } );
 
 };
