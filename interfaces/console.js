@@ -12,40 +12,48 @@ GameServer.prototype.initconsole = function(index){
 		next();
 	});
 
-	if(hasPermission("s:socket:console", self.socket_token, index)) {
-		this.on('console', function(data){
+	this.on('console', function(data){
+
+		if(hasPermission("s:socket:console", self.socket_token, index)) {
 			self.console.emit('console', {'l':data.toString()});
-		});
-	} else {
-		console.log("Failed to authenticate key at s:socket:console");
-	}
+		} else {
+			console.log("Failed to authenticate key at s:socket:console");
+		}
+
+	});
 
 	this.on('statuschange', function(data) {
 		self.console.emit('statuschange', {'status':self.status});
 	});
 
-	if(hasPermission("s:socket:query", self.socket_token, index)) {
-		this.on('query', function(data) {
+	this.on('query', function(data) {
+
+		if(hasPermission("s:socket:query", self.socket_token, index)) {
 			self.console.emit('query', {"query":self.lastquery()});
-		});
-	} else {
-		console.log("Failed to authenticate key at s:socket:query");
-	}
+		} else {
+			console.log("Failed to authenticate key at s:socket:query");
+		}
 
-	if(hasPermission("s:socket:stats", self.socket_token, index)) {
-		this.on('processStats', function(data) {
+	});
+
+	this.on('processStats', function(data) {
+
+		if(hasPermission("s:socket:stats", self.socket_token, index)) {
 			self.console.emit('process', {"process":self.usagestats});
-		});
-	} else {
-		console.log("Failed to authenticate key at s:socket:stats");
-	}
+		} else {
+			console.log("Failed to authenticate key at s:socket:stats");
+		}
 
-	if(hasPermission("s:console", self.socket_token, index)) {
-		this.console.on('sendconsole', function (command) {
+	});
+
+	this.console.on('sendconsole', function (command) {
+
+		if(hasPermission("s:console", self.socket_token, index)) {
 			self.send(command);
-		});
-	} else {
-		console.log("Failed to authenticate key at s:console");
-	}
+		} else {
+			console.log("Failed to authenticate key at s:console");
+		}
+
+	});
 
 };
