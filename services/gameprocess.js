@@ -85,7 +85,7 @@ GameServer.prototype.turnon = function() {
 
 		if(this.cpu_limit > 0) {
 
-			exec('cpulimit -p ' + this.ps.pid + ' -l ' + this.cpu_limit + ' -d', function(error, stdout, stderr) {
+			exec('cpulimit -p ' + this.ps.pid + ' -l ' + this.cpu_limit + ' -z -d', function(error, stdout, stderr) {
 				console.log("Beginning CPU Limiting (" + this.cpu_limit + "%) for process: " + this.ps.pid);
 				console.log("Output: " + stdout);
 			});
