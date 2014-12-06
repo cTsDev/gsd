@@ -12,7 +12,7 @@ GameServer.prototype.initconsole = function(index){
 		next();
 	});
 
-	if(hasPermission("s:socket:console", socket_token, index)) {
+	if(hasPermission("s:socket:console", self.socket_token, index)) {
 		this.on('console', function(data){
 			self.console.emit('console', {'l':data.toString()});
 		});
@@ -24,7 +24,7 @@ GameServer.prototype.initconsole = function(index){
 		self.console.emit('statuschange', {'status':self.status});
 	});
 
-	if(hasPermission("s:socket:query", socket_token, index)) {
+	if(hasPermission("s:socket:query", self.socket_token, index)) {
 		this.on('query', function(data) {
 			self.console.emit('query', {"query":self.lastquery()});
 		});
@@ -32,7 +32,7 @@ GameServer.prototype.initconsole = function(index){
 		console.log("Failed to authenticate key at s:socket:query");
 	}
 
-	if(hasPermission("s:socket:stats", socket_token, index)) {
+	if(hasPermission("s:socket:stats", self.socket_token, index)) {
 		this.on('processStats', function(data) {
 			self.console.emit('process', {"process":self.usagestats});
 		});
@@ -40,7 +40,7 @@ GameServer.prototype.initconsole = function(index){
 		console.log("Failed to authenticate key at s:socket:stats");
 	}
 
-	if(hasPermission("s:console", socket_token, index)) {
+	if(hasPermission("s:console", self.socket_token, index)) {
 		this.console.on('sendconsole', function (command) {
 			self.send(command);
 		});
