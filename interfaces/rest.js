@@ -205,7 +205,7 @@ restserver.put(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
 		res.send(service.zipfile(req.params[1]));
 	}
 	if ('unzip' in req.params) {
-		if (!restauth(req, req.params[0], "s:files:unzip")) {
+		if (!restauth(req, req.params[0], "s:files:zip")) {
 			res = unauthorized(res);
 			return next();
 		}
