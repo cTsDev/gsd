@@ -72,38 +72,48 @@ GameServer.prototype.updatekeys = function(keys, replace){
 
 };
 
-GameServer.prototype.turnon = function() {
+GameServer.prototype.preflight = function(callback) {
+	console.info("-----Preflight for server " + this.config.user + "-----");
+	try{
+		this.plugin.preflight(this, userid.uid(this.config.user), userid.gid("gsdusers"), this.config.path);
+	} catch(ex) {
+		console.error(ex.stack);
+	}
+	console.info("-----Preflight Done-----");
+	callback();
+};
+
+GameServer.prototype.turnon = function(callback) {
 	var self = this;
 	// Shouldn't happen, but does on a crash after restart
 	if (!this.status == OFF){
-		// console.log("Tried to turn on but status is already : " + self.status);
 		return;
 	}
 
-	this.plugin.preflight(this);
-
+	console.info(this.config.path + " " + userid.uid(self.config.user) + " " + userid.gid("gsdusers"));
 	this.ps = pty.spawn(this.exe, this.commandline, {cwd: this.config.path, uid: userid.uid(self.config.user), gid: userid.gid("gsdusers")});
 	this.pid = this.ps.pid;
 
 	this.setStatus(STARTING);
-	console.log("Starting server for "+ self.config.user +" ("+ self.config.name +")");
+	console.log("-----Starting server for "+ self.config.user +" ("+ self.config.name +")-----");
 
-	try {
-
+		console.log("====Starting CPU Limit====");
 		this.cpu_limit = parseInt(this.config.build.cpu);
 
 		if(this.cpu_limit > 0) {
-
-			exec('cpulimit -p ' + this.ps.pid + ' -l ' + this.cpu_limit + ' -z -d', function(error, stdout, stderr) {
-				console.log("Beginning CPU Limiting (" + this.cpu_limit + "%) for process: " + this.ps.pid);
-				console.log("Output: " + stdout);
+			console.log("Limit set to " + self.cpu_limit);
+			try{
+			exec('cpulimit -p ' + self.ps.pid + ' -l ' + self.cpu_limit + ' -z -d', function(error, stdout, stderr) {
 			});
+			} catch(ex) {
+				console.error(ex.stack);
+			}
 
 		}
 
-	} catch(ex) {
-		console.log("Assumed outdated GSD config. No CPU Limit defined for server!");
-	}
+	console.log("====CPU Limit Started====");
+
+	callback();
 
 	this.ps.on('data', function(data){
 		output = data.toString();
@@ -121,14 +131,14 @@ GameServer.prototype.turnon = function() {
 				self.usagestats = {};
 				self.querystats = {};
 				self.emit('started');
-				console.log("Started server for "+ self.config.user +" ("+ self.config.name +")");
+				console.log("-----Server " + self.config.name + "Started-----");
 			}
 		}
 	});
 
 	this.ps.on('exit', function(){
 		if (self.status == STOPPING){
-			console.log("Stopping server for "+ self.config.user +" ("+ self.config.name +")");
+			console.log("-----Stopping server for "+ self.config.user +" ("+ self.config.name +")-----");
 			self.setStatus(OFF);
 			self.emit('off');
 	    	return;
@@ -156,6 +166,7 @@ GameServer.prototype.turnon = function() {
 		self.querystats = {};
 		usage.clearHistory(self.pid);
 		self.pid = undefined;
+		console.log("-----Sever Stopped-----");
 	});
 };
 
@@ -198,25 +209,15 @@ GameServer.prototype.create = function(){
 	},
 	function(callback) {
 		console.log("====Fixing Permissions====");
-		try{
-			fixperms(config.user, config.path, function cb(){callback(null);});
-		} catch(ex)
-		{
-			console.log(ex.stack);
-		}
+		fixperms(config.user, config.path, function cb(){callback(null);});
 		console.log("========");
 	}]);
 };
 
 GameServer.prototype.delete = function(){
-	console.log("====Deleing user====");
-	try{
-		deleteUser(this.config.user, function cb(){callback(null);});
-	} catch(ex)
-	{
-		console.log(ex.stack);
-	}
-	console.log("========")
+	console.log("-----Deleting Server " + this.config.name + "-----");
+	deleteUser(this.config.user, function cb(){callback(null);});
+	console.log("----------")
 };
 
 GameServer.prototype.setStatus = function(status){
@@ -387,8 +388,8 @@ GameServer.prototype.getgamemodes = function getgamemode(res){
 GameServer.prototype.installgamemode = function installgamemode(){
 	managerlocation = pathlib.join(__dirname,"gamemodes",self.config.plugin,"gamemodemanager");
 	if (self.status == ON){
-	self.turnoff();
-	console.log("HERE");
+		self.turnoff();
+		console.log("HERE");
 	}
 	self.setStatus(CHANGING_GAMEMODE);
 	console.log(self.config.path)
@@ -398,12 +399,12 @@ GameServer.prototype.installgamemode = function installgamemode(){
 
 	installer.stdout.on('data', function(data){
 	if (data == "\r\n"){return}
-	console.log(data);
-	self.emit('console',data);
+		console.log(data);
+		self.emit('console',data);
 	});
 
 	installer.on('exit', function(){
-	self.setStatus(OFF);
+		self.setStatus(OFF);
 	});
 };
 

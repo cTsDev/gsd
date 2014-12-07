@@ -8,6 +8,7 @@ var servers = require('../services/index.js').servers;
 var initServer = require('../services/index.js').initServer;
 var restserver = restify.createServer();
 var path = require('path');
+var async = require('async');
 
 restserver.use(restify.bodyParser());
 restserver.use(restify.authorizationParser());
@@ -143,7 +144,16 @@ restserver.put('/gameservers/:id', function info(req, res, next){
 restserver.get('/gameservers/:id/on', function on(req, res, next){
 	if (!restauth(req, req.params.id, "s:power")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
-	service.turnon();
+
+
+	async.series([
+		function(callback) {
+			service.preflight(function(){callback(null);});
+		},
+		function(callback) {
+			service.turnon(function(){callback(null);});
+		}
+	]);
 	res.send('ok')
 });
 

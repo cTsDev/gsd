@@ -54,11 +54,19 @@ settings.commands = {
 	}
 };
 
-settings.preflight = function(server){
-	var jarPath = pathlib.join(server.config.path, server.config.variables['-jar']);
+settings.preflight = function(server, user, group, path){
+	jarPath = pathlib.join(path, server.config.variables['-jar']);
+	settingsPath = pathlib.join(path, "server.properties");
 
 	if (!fs.existsSync(jarPath)){
-	throw new Error("Jar doesn\'t exist : " + server.config.variables['-jar']);
+		throw new Error("Jar doesn\'t exist : " + server.config.variables['-jar']);
+	}
+	if(fs.existsSync(settingsPath)){
+		try{
+			fs.chown(settingsPath, user, group, function(){callback(null);});
+		} catch(ex){
+			console.error(ex.stack);
+		}
 	}
 };
 
@@ -122,7 +130,7 @@ settings.configlist = function configlist(self){
 	});
 
 	if (fs.existsSync(pathlib.join(self.config.path, "server.properties"))){
-	configs['core'] = configs['core'].concat("server.properties")
+		configs['core'] = configs['core'].concat("server.properties");
 	}
 
 	if (fs.existsSync(pathlib.join(self.config.path, "plugins"))){
