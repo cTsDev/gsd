@@ -187,18 +187,36 @@ GameServer.prototype.create = function(){
 
 	async.series([
 	function(callback) {
+		console.log("====Creating user====");
 		createUser(config.user, config.path, function cb(){callback(null);});
+		console.log("========");
 	},
 	function(callback) {
+		console.log("====Installing plugin====");
 		self.plugin.install(self, function cb(){callback(null);});
+		console.log("========");
 	},
 	function(callback) {
-		fixperms(config.user, config.path, function cb(){callback(null);});
+		console.log("====Fixing Permissions====");
+		try{
+			fixperms(config.user, config.path, function cb(){callback(null);});
+		} catch(ex)
+		{
+			console.log(ex.stack);
+		}
+		console.log("========");
 	}]);
 };
 
 GameServer.prototype.delete = function(){
-	deleteUser(this.config.user);
+	console.log("====Deleing user====");
+	try{
+		deleteUser(this.config.user, function cb(){callback(null);});
+	} catch(ex)
+	{
+		console.log(ex.stack);
+	}
+	console.log("========")
 };
 
 GameServer.prototype.setStatus = function(status){

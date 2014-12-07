@@ -63,20 +63,29 @@ settings.preflight = function(server){
 };
 
 settings.install = function(server, callback){
-
+	console.log("   Copying ...");
 	try {
 
 		if(typeof server.config.build.install_dir == 'undefined') {
+
 			copyFolder(server, '/mnt/MC/CraftBukkit/', function(){ callback(); });
+
 		} else {
+
 			if(!fs.existsSync(server.config.build.install_dir)){
+
 				copyFolder(server, '/mnt/MC/CraftBukkit/', function(){ callback(); });
+
 			} else {
+
 				copyFolder(server, server.config.build.install_dir, function(){ callback(); });
+
 			}
+
 		}
 
-		callback();
+		console.log("   ... done");
+
 
 	} catch(ex) {
 
