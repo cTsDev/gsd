@@ -181,7 +181,7 @@ GameServer.prototype.turnoff = function(){
 	}
 };
 
-GameServer.prototype.killpid = function(){
+GameServer.prototype.kill = function(){
 	var self = this;
 	clearTimeout(self.queryCheck);
 	if (!self.status == OFF){
@@ -216,6 +216,7 @@ GameServer.prototype.create = function(){
 
 GameServer.prototype.delete = function(){
 	console.log("-----Deleting Server " + this.config.name + "-----");
+	this.kill();
 	deleteUser(this.config.user, function cb(){callback(null);});
 	console.log("----------")
 };
@@ -266,10 +267,6 @@ GameServer.prototype.info = function(){
 GameServer.prototype.restart = function(){
 	this.once('off', function (stream) {this.turnon()});
 	this.turnoff();
-};
-
-GameServer.prototype.kill = function(){
-	this.ps.kill();
 };
 
 GameServer.prototype.send = function(data){

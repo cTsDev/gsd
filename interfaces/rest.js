@@ -85,7 +85,7 @@ restserver.del('/gameservers/:id', function info(req, res, next){
 	if (!restauth(req, req.params.id, "g:delete")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
 	// TODO: if on, turn off
-	service.delete();	var ftpd = require('ftpd');
+	service.delete();
 	id = config.servers.splice(req.params.id,1);
 	saveconfig(config);
 	res.send("ok");
@@ -167,7 +167,7 @@ restserver.get('/gameservers/:id/off', function off(req, res, next){
 restserver.get('/gameservers/:id/kill', function off(req, res, next){
 	if (!restauth(req, req.params.id, "s:power")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
-	service.killpid();
+	service.kill();
 	res.send('ok')
 });
 
