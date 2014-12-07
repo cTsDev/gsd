@@ -28,6 +28,7 @@ function GameServer(config) {
 	this.plugin = plugins[this.config.plugin + '.js'];
 
 	this.variables = utls.mergedicts(this.plugin.defaultvariables, this.config.variables);
+	this.keys = this.config.keys;
 	this.commandline = merge(this.plugin.joined, this.variables);
 	this.exe = this.plugin.exe;
 
@@ -58,6 +59,18 @@ GameServer.prototype.updatevariables = function(variables, replace){
 	savesettings();
 };
 
+GameServer.prototype.updatekeys = function(keys, replace){
+
+	if (replace == true){
+		this.keys = utls.mergedicts(this.plugin.defaultvariables, variables);
+	}else{
+		this.keys = utls.mergedicts(this.keys, keys);
+	}
+
+	this.config.keys = this.keys;
+	savesettings();
+
+};
 
 GameServer.prototype.turnon = function() {
 	var self = this;

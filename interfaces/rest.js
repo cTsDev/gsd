@@ -99,14 +99,43 @@ restserver.get('/gameservers/:id', function (req, res, next){
 
 restserver.put('/gameservers/:id', function info(req, res, next){
 	if (!restauth(req, req.params.id, "g:update")){res = unauthorized(res); return next();}
-	try {
-		service = servers[req.params.id];
-		service.updatevariables(JSON.parse(req.params['variables']), true);
-		saveconfig(config);
-		res.send(service.info());
-	} catch(err){
-		console.log(err.stack);
-		res.send(service.info());
+
+	if(req.params['variables']) {
+
+		try {
+
+			service = servers[req.params.id];
+			service.updatevariables(JSON.parse(req.params['variables']), true);
+			saveconfig(config);
+			res.send(service.info());
+
+		} catch(err){
+
+			console.log("Error encountered when trying to update server variables.");
+			console.log(err.stack);
+			res.send(service.info());
+
+		}
+
+	}
+
+	if(req.params['keys']) {
+
+		try {
+
+			service = servers[req.params.id];
+			service.updatekeys(JSON.parse(req.params['keys']), false);
+			saveconfig(config);
+			res.send(service.info());
+
+		} catch(err){
+
+			console.log("Error encountered when trying to update server permission keys.");
+			console.log(err.stack);
+			res.send(service.info());
+
+		}
+
 	}
 });
 
