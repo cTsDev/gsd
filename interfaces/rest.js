@@ -180,28 +180,38 @@ restserver.get(/^\/gameservers\/(\d+)\/folder\/(.+)/, function(req, res, next) {
 });
 
 restserver.put(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
-	if (!restauth(req, req.params[0], "s:files:put")) {
-		res = unauthorized(res);
-		return next();
-	}
 	if ('contents' in req.params) {
+		if (!restauth(req, req.params[0], "s:files:put")) {
+			res = unauthorized(res);
+			return next();
+		}
 		service = servers[req.params[0]];
 		res.send(service.writefile(req.params[1], req.params['contents']));
 	}
 	if ('url' in req.params) {
+		if (!restauth(req, req.params[0], "s:files:put")) {
+			res = unauthorized(res);
+			return next();
+		}
 		service = servers[req.params[0]];
 		res.send(service.downloadfile(req.params['url'], req.params[1]));
 	}
 	if ('zip' in req.params) {
+		if (!restauth(req, req.params[0], "s:files:zip")) {
+			res = unauthorized(res);
+			return next();
+		}
 		service = servers[req.params[0]];
 		res.send(service.zipfile(req.params[1]));
 	}
 	if ('unzip' in req.params) {
-
+		if (!restauth(req, req.params[0], "s:files:unzip")) {
+			res = unauthorized(res);
+			return next();
+		}
 		service = servers[req.params[0]];
 		ext = path.extname(req.params[1]);
 		res.send(service.unzipfile(ext, req.params[1]));
-
 	}
 });
 
