@@ -109,7 +109,7 @@ GameServer.prototype.turnon = function(callback) {
 
 			this.cpu.on('close', function(code) {
 				console.log("[WARN] Child process 'cpulimit' for process " + this.pid + " exited with code " + code + ".");
-			}
+			});
 
 		}
 
