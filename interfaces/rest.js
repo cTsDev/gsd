@@ -9,6 +9,7 @@ var initServer = require('../services/index.js').initServer;
 var restserver = restify.createServer();
 var path = require('path');
 var async = require('async');
+var mime = require('mime');
 
 restserver.use(restify.bodyParser());
 restserver.use(restify.authorizationParser());
@@ -210,6 +211,21 @@ restserver.get(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
 	if (!restauth(req, req.params[0], "s:files:get")){res = unauthorized(res); return next();}
 	service = servers[req.params[0]];
 	res.send({'contents':service.readfile(req.params[1])});
+});
+
+restserver.get(/^\/gameservers\/(\d+)\/download\/(.+)/, function(req, res, next) {
+	if (!restauth(req, req.params[0], "s:files:get")){res = unauthorized(res); return next();}
+	service = servers[req.params[0]];
+
+	var filename = path.basename(req.params[1]);
+	var mimetype = mime.lookup(req.params[1]);
+
+	res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+	res.setHeader('Content-type', mimetype);
+
+	var file = service.returnFilePath(req.params[1]);
+	var filestream = fs.createReadStream(file);
+	filestream.pipe(res);
 });
 
 restserver.get(/^\/gameservers\/(\d+)\/folder\/(.+)/, function(req, res, next) {

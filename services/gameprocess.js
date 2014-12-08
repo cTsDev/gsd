@@ -293,6 +293,11 @@ GameServer.prototype.readfile = function readfile(f){
 	return fs.readFileSync(file, "utf8");
 };
 
+GameServer.prototype.returnFilePath = function returnFilePath(f){
+	file = pathlib.join(this.config.path, pathlib.normalize(f));
+	return file;
+};
+
 GameServer.prototype.dir = function dir(f){
 	var self = this;
 	folder = pathlib.join(this.config.path, pathlib.normalize(f));
