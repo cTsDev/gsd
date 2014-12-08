@@ -54,29 +54,46 @@ settings.commands = {
 	}
 };
 
-settings.preflight = function(server){
-	var jarPath = pathlib.join(server.config.path, server.config.variables['-jar']);
+settings.preflight = function(server, user, group, path){
+	jarPath = pathlib.join(path, server.config.variables['-jar']);
+	settingsPath = pathlib.join(path, "server.properties");
 
 	if (!fs.existsSync(jarPath)){
-	throw new Error("Jar doesn\'t exist : " + server.config.variables['-jar']);
+		throw new Error("Jar doesn\'t exist : " + server.config.variables['-jar']);
+	}
+	if(fs.existsSync(settingsPath)){
+		try{
+			fs.chown(settingsPath, user, group, function(){callback(null);});
+		} catch(ex){
+			console.error(ex.stack);
+		}
 	}
 };
 
 settings.install = function(server, callback){
-
+	console.log("   Copying ...");
 	try {
 
 		if(typeof server.config.build.install_dir == 'undefined') {
+
 			copyFolder(server, '/mnt/MC/CraftBukkit/', function(){ callback(); });
+
 		} else {
+
 			if(!fs.existsSync(server.config.build.install_dir)){
+
 				copyFolder(server, '/mnt/MC/CraftBukkit/', function(){ callback(); });
+
 			} else {
+
 				copyFolder(server, server.config.build.install_dir, function(){ callback(); });
+
 			}
+
 		}
 
-		callback();
+		console.log("   ... done");
+
 
 	} catch(ex) {
 
@@ -113,7 +130,7 @@ settings.configlist = function configlist(self){
 	});
 
 	if (fs.existsSync(pathlib.join(self.config.path, "server.properties"))){
-	configs['core'] = configs['core'].concat("server.properties")
+		configs['core'] = configs['core'].concat("server.properties");
 	}
 
 	if (fs.existsSync(pathlib.join(self.config.path, "plugins"))){
