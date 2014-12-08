@@ -55,7 +55,7 @@ restserver.get('/', function info(req, res, next){
 	settings = plugins[key];
 	_plugins[settings.name] = {"file":key.slice(0, -3)};
 	}
-	response = {'gsd_version':"0.1.1", 'plugins':_plugins, 'settings':{'consoleport':config.daemon.consoleport}};
+	response = {'gsd_version':"0.1.3", 'plugins':_plugins, 'settings':{'consoleport':config.daemon.consoleport}};
 	res.send(response);
 });
 
