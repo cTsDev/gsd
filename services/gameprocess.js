@@ -86,7 +86,7 @@ GameServer.prototype.turnon = function() {
 	this.pid = this.ps.pid;
 
 	this.setStatus(STARTING);
-	console.log("Starting server for "+ self.config.user +" ("+ self.config.name +")");
+	console.log("[INFO] Starting server for "+ self.config.user +" ("+ self.config.name +")");
 
 	try {
 
@@ -94,15 +94,15 @@ GameServer.prototype.turnon = function() {
 
 		if(this.cpu_limit > 0) {
 
-			exec('cpulimit -p ' + this.ps.pid + ' -l ' + this.cpu_limit + ' -z -d', function(error, stdout, stderr) {
-				console.log("Beginning CPU Limiting (" + this.cpu_limit + "%) for process: " + this.ps.pid);
-				console.log("Output: " + stdout);
+			this.cpu = pty.spawn('cpulimit',  ['-p', this.ps.pid, '-z', '-l', this.cpu_limit]);
+			this.cpu.on('close', function(code) {
+				console.log("[WARN] Child process 'cpulimit' for process " + this.pid + " exited with code " + code + ".");
 			});
 
 		}
 
 	} catch(ex) {
-		console.log("Assumed outdated GSD config. No CPU Limit defined for server!");
+		console.log("[INFO] No CPU Limit defined for server. Running process with unlimited CPU time.");
 	}
 
 	this.ps.on('data', function(data){
@@ -112,7 +112,7 @@ GameServer.prototype.turnon = function() {
 			if (output.indexOf(self.plugin.eula_trigger) !=-1){
 				self.setStatus(OFF);
 				self.emit('crash');
-				console.log("Server " + self.config.name + " needs to accept EULA");
+				console.log("[WARN] Server " + self.config.name + " needs to accept EULA");
 			}
 			if (output.indexOf(self.plugin.started_trigger) !=-1){
 				self.setStatus(ON);
@@ -121,21 +121,21 @@ GameServer.prototype.turnon = function() {
 				self.usagestats = {};
 				self.querystats = {};
 				self.emit('started');
-				console.log("Started server for "+ self.config.user +" ("+ self.config.name +")");
+				console.log("[INFO] Started server for "+ self.config.user +" ("+ self.config.name +")");
 			}
 		}
 	});
 
 	this.ps.on('exit', function(){
 		if (self.status == STOPPING){
-			console.log("Stopping server for "+ self.config.user +" ("+ self.config.name +")");
+			console.log("[INFO] Stopping server for "+ self.config.user +" ("+ self.config.name +")");
 			self.setStatus(OFF);
 			self.emit('off');
 	    	return;
 		}
 
 		if (self.status == ON || self.status == STARTING){
-			console.log("Server appears to have crashed for "+ self.config.user +" ("+ self.config.name +")");
+			console.log("[WARN] Server appears to have crashed for "+ self.config.user +" ("+ self.config.name +")");
 			self.setStatus(OFF);
 			self.emit('off');
 			self.emit('crash');
@@ -143,9 +143,9 @@ GameServer.prototype.turnon = function() {
 	});
 
 	this.on('crash', function(){
-		console.log("Restarting server after crash for "+ self.config.user +" ("+ self.config.name +")");
+		console.log("[INFO] Restarting server after crash for "+ self.config.user +" ("+ self.config.name +")");
 		if (self.status == ON){
-		self.restart();
+			self.restart();
 		}
 	});
 
@@ -156,6 +156,7 @@ GameServer.prototype.turnon = function() {
 		self.querystats = {};
 		usage.clearHistory(self.pid);
 		self.pid = undefined;
+		self.cpu = undefined;
 	});
 };
 
