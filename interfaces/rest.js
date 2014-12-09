@@ -128,6 +128,26 @@ restserver.put('/gameservers/:id', function info(req, res, next){
 		}
 
 	}
+
+	if(req.params['build']) {
+
+		try {
+
+			service = servers[req.params.id];
+			service.updatebuild(JSON.parse(req.params['build']));
+			saveconfig(config);
+			res.send(service.info());
+
+		} catch(err){
+
+			console.log("Error encountered when trying to update server CPU information.");
+			console.log(err.stack);
+			res.send(service.info());
+
+		}
+
+	}
+
 });
 
 

@@ -29,6 +29,7 @@ function GameServer(config) {
 
 	this.variables = utls.mergedicts(this.plugin.defaultvariables, this.config.variables);
 	this.keys = this.config.keys;
+	this.build = this.config.build;
 	this.commandline = merge(this.plugin.joined, this.variables);
 	this.exe = this.plugin.exe;
 
@@ -71,6 +72,15 @@ GameServer.prototype.updatekeys = function(keys){
 	}
 
 	this.config.keys = keyList;
+	savesettings();
+
+};
+
+GameServer.prototype.updatebuild = function(build){
+
+	this.build = utls.mergedicts(this.build, build);
+
+	this.config.build = this.build;
 	savesettings();
 
 };
