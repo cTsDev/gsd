@@ -10,6 +10,7 @@ var restserver = restify.createServer();
 var path = require('path');
 var async = require('async');
 var mime = require('mime');
+var request = require('request');
 
 restserver.use(restify.bodyParser());
 restserver.use(restify.authorizationParser());
@@ -201,19 +202,44 @@ restserver.get(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
 	res.send({'contents':service.readfile(req.params[1])});
 });
 
-restserver.get(/^\/gameservers\/(\d+)\/download\/(.+)/, function(req, res, next) {
-	if (!restauth(req, req.params[0], "s:files:get")){res = unauthorized(res); return next();}
+restserver.get(/^\/gameservers\/(\d+)\/download\/(\w+)/, function(req, res, next) {
+
 	service = servers[req.params[0]];
+	process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+	if (config.interfaces.rest.authurl != null){
+		request.post(config.interfaces.rest.authurl, {form: { token: req.params[1], server: req.params[0]}}, function (error, response, body) {
+			if (!error && response.statusCode == 200) {
+				try {
+					json = JSON.parse(body);
+					if (json.path && json.path != null){
 
-	var filename = path.basename(req.params[1]);
-	var mimetype = mime.lookup(req.params[1]);
+						var filename = path.basename(json.path);
+						var mimetype = mime.lookup(json.path);
+						res.setHeader('Content-disposition', 'attachment; filename=' + filename);
+						res.setHeader('Content-type', mimetype);
+						var file = service.returnFilePath(json.path);
+						var filestream = fs.createReadStream(file);
+						filestream.pipe(res);
 
-	res.setHeader('Content-disposition', 'attachment; filename=' + filename);
-	res.setHeader('Content-type', mimetype);
+					}else{
+						console.log("[WARN] Downloader failed to authenticate: server did not respond with valid download path.");
+						res.send({'error': 'Server did not respond with a valid download path.'});
+					}
+				} catch (ex) {
+					console.log("[WARN] Downloader failed to authenticate die to a GSD error:");
+					console.log(ex.stack);
+					res.send({'error': 'Server was unable to authenticate this request.'});
+				}
+			}else{
+				console.log("[WARN] Downloader failed to authenticate: Server returned error code.");
+				res.send({'error': 'Server responded with an error code. [HTTP/1.1 ' + response.statusCode + ']'});
+			}
+		});
+	}else{
+		console.log("[WARN] Downloader failed to authenticate: no authentication URL provided.");
+		res.send({'error': 'This action is not configured correctly in the configuration.'});
+	}
 
-	var file = service.returnFilePath(req.params[1]);
-	var filestream = fs.createReadStream(file);
-	filestream.pipe(res);
 });
 
 restserver.get(/^\/gameservers\/(\d+)\/folder\/(.+)/, function(req, res, next) {

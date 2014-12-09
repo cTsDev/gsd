@@ -3,12 +3,16 @@
         "listenport": 8003,
         "consoleport": 8031
     },
-    "tokens": ["123"],
+    "tokens": [
+        "sometoken"
+    ],
     "interfaces": {
-        "rest": {},
+        "rest": {
+            "authurl": "https://example.com/ajax/validate_download.php"
+        },
         "console": {},
         "ftp": {
-            "authurl": "https://www.mysite.com/ftpauth.php",
+            "authurl": "https://example.com/ajax/validate_ftp.php",
             "port": 21,
             "host": "127.0.0.1",
             "use_ssl": true
@@ -16,25 +20,28 @@
     },
     "servers": [
         {
-            "name": "Test Server",
-            "user": "My_FTP_User",
+            "name": "8828ba97-fb1d-4174-b3ae-74d8ed59a2cb",
+            "user": "gsd_server_1",
             "overide_command_line": "",
-            "path": "/home/My_FTP_User",
-            "build": {
-                "install_dir" => "/mnt/MC/CraftBukkit/",
-                "disk": {
-                    "hard": 10240,
-                    "soft": 9216
-                },
-                "cpu": 0
-            },
+            "path": "/home/gsd_server_1",
             "variables": {
                 "-Djline.terminal=": "jline.UnsupportedTerminal",
                 "-Xmx": "512M",
-                "-jar": "minecraft_server.jar"
+                "-jar": "server.jar"
+            },
+            "build": {
+                "install_dir": "/mnt/MC/CraftBukkit/",
+                "disk": {
+                    "hard": 1024,
+                    "soft": 32
+                },
+                "cpu": 0
+            },
+            "keys": {
+                "somekey": ["s:ftp", "s:get", "s:power", "s:files", "s:files:get", "s:files:put", "s:query", "s:console", "s:socket:console", "s:socket:query", "s:socket:stats"]
             },
             "gameport": "25565",
-            "gamehost": "127.0.0.1",
+            "gamehost": "192.168.1.1",
             "plugin": "minecraft",
             "autoon": false
         }
