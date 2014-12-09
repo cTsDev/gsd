@@ -215,9 +215,13 @@ restserver.get(/^\/gameservers\/(\d+)\/download\/(\w+)/, function(req, res, next
 
 						var filename = path.basename(json.path);
 						var mimetype = mime.lookup(json.path);
-						res.setHeader('Content-disposition', 'attachment; filename=' + filename);
-						res.setHeader('Content-type', mimetype);
 						var file = service.returnFilePath(json.path);
+						var stat = fs.statSync(file);
+						res.writeHead(200, {
+							'Content-Type': mimetype,
+							'Content-Length': stat.size,
+							'Content-Disposition': 'attachment; filename=' + filename
+						});
 						var filestream = fs.createReadStream(file);
 						filestream.pipe(res);
 
@@ -231,7 +235,7 @@ restserver.get(/^\/gameservers\/(\d+)\/download\/(\w+)/, function(req, res, next
 					res.send({'error': 'Server was unable to authenticate this request.'});
 				}
 			}else{
-				console.log("[WARN] Downloader failed to authenticate: Server returned error code.");
+				console.log("[WARN] Downloader failed to authenticate: Server returned error code [HTTP/1.1 " + response.statusCode + "].");
 				res.send({'error': 'Server responded with an error code. [HTTP/1.1 ' + response.statusCode + ']'});
 			}
 		});
