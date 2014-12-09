@@ -48,18 +48,6 @@ function unauthorized(res){
 
 }
 
-restserver.get('/', function info(req, res, next){
-	if (!restauth(req, -1, "g:info")){res = unauthorized(res); return next();}
-
-	_plugins = {};
-	for (var key in plugins) {
-	settings = plugins[key];
-	_plugins[settings.name] = {"file":key.slice(0, -3)};
-	}
-	response = {'gsd_version':"0.1.3", 'plugins':_plugins, 'settings':{'consoleport':config.daemon.consoleport}};
-	res.send(response);
-});
-
 restserver.get('/gameservers/', function info(req, res, next){
 	if (!restauth(req, -1, "g:list")){res = unauthorized(res); return next();}
 	response = [];
