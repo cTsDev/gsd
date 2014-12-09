@@ -98,13 +98,11 @@ restserver.put('/gameservers/:id', function info(req, res, next){
 			service = servers[req.params.id];
 			service.updatevariables(JSON.parse(req.params['variables']), true);
 			saveconfig(config);
-			res.send(service.info());
 
 		} catch(err){
 
 			console.log("Error encountered when trying to update server variables.");
 			console.log(err.stack);
-			res.send(service.info());
 
 		}
 
@@ -117,13 +115,11 @@ restserver.put('/gameservers/:id', function info(req, res, next){
 			service = servers[req.params.id];
 			service.updatekeys(JSON.parse(req.params['keys']));
 			saveconfig(config);
-			res.send(service.info());
 
 		} catch(err){
 
 			console.log("Error encountered when trying to update server permission keys.");
 			console.log(err.stack);
-			res.send(service.info());
 
 		}
 
@@ -136,17 +132,17 @@ restserver.put('/gameservers/:id', function info(req, res, next){
 			service = servers[req.params.id];
 			service.updatebuild(JSON.parse(req.params['build']));
 			saveconfig(config);
-			res.send(service.info());
 
 		} catch(err){
 
 			console.log("Error encountered when trying to update server CPU information.");
 			console.log(err.stack);
-			res.send(service.info());
 
 		}
 
 	}
+
+	res.send(service.info());
 
 });
 
