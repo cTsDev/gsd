@@ -59,15 +59,18 @@ GameServer.prototype.updatevariables = function(variables, replace){
 	savesettings();
 };
 
-GameServer.prototype.updatekeys = function(keys, replace){
+GameServer.prototype.updatekeys = function(keys){
 
-	if (replace == true){
-		this.keys = utls.mergedicts(this.plugin.defaultvariables, variables);
-	}else{
-		this.keys = utls.mergedicts(this.keys, keys);
+	this.keys = utls.mergedicts(this.keys, keys);
+
+	var keyList = {};
+	for(var i in this.keys) {
+		if(this.keys[i].length !== 0) {
+			keyList[i] = this.keys[i];
+		}
 	}
 
-	this.config.keys = this.keys;
+	this.config.keys = keyList;
 	savesettings();
 
 };

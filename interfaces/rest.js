@@ -115,7 +115,7 @@ restserver.put('/gameservers/:id', function info(req, res, next){
 		try {
 
 			service = servers[req.params.id];
-			service.updatekeys(JSON.parse(req.params['keys']), false);
+			service.updatekeys(JSON.parse(req.params['keys']));
 			saveconfig(config);
 			res.send(service.info());
 
