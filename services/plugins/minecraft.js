@@ -1,7 +1,7 @@
 mcping = require('mcquery');
 fs = require('fs');
 pathlib = require('path');
-glob = require('glob')
+glob = require('glob');
 copyFolder = require('../create.js').copyFolder;
 var properties = require ("properties");
 
@@ -72,35 +72,29 @@ settings.preflight = function(server, user, group, path){
 
 settings.install = function(server, callback){
 	console.log("   Copying ...");
+	if(typeof server.config.build == 'undefined' || typeof server.config.build.install_dir == 'undefined'){
+		installDir = '/mnt/MC/CraftBukkit/';
+		console.log("      No install directory defined. Using default " + installDir);
+
+	} else {
+
+		installDir = server.config.build.install_dir;
+
+	}
+
 	try {
 
-		if(typeof server.config.build.install_dir == 'undefined') {
-
-			copyFolder(server, '/mnt/MC/CraftBukkit/', function(){ callback(); });
-
-		} else {
-
-			if(!fs.existsSync(server.config.build.install_dir)){
-
-				copyFolder(server, '/mnt/MC/CraftBukkit/', function(){ callback(); });
-
-			} else {
-
-				copyFolder(server, server.config.build.install_dir, function(){ callback(); });
-
-			}
-
-		}
-
+		copyFolder(server, installDir, function(){ callback(); });
 		console.log("   ... done");
 
 
 	} catch(ex) {
 
-		console.log("An error occured trying to copy over the files for the following server: "+ server.config.name);
-		console.log(ex);
+		console.log("   An error occured trying to copy over the files for the following server: "+ server.config.name);
+		console.log("   " + ex.stack);
 
 	}
+
 
 };
 
