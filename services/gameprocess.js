@@ -351,7 +351,6 @@ GameServer.prototype.zipfile = function zipfile(file) {
 
 	path = pathlib.join(this.config.path, pathlib.normalize(file));
 	loc = pathlib.join(this.config.path, pathlib.normalize(file+".tar.gz"));
-	console.log("   To: "+ loc);
 	compress = new targz().compress(path, loc, function(err) {if(err) console.log(err); } );
 
 };
@@ -403,7 +402,6 @@ GameServer.prototype.installgamemode = function installgamemode(){
 	managerlocation = pathlib.join(__dirname,"gamemodes",self.config.plugin,"gamemodemanager");
 	if (self.status == ON){
 		self.turnoff();
-		console.log("HERE");
 	}
 	self.setStatus(CHANGING_GAMEMODE);
 	console.log(self.config.path)

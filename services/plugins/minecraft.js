@@ -81,7 +81,6 @@ settings.preflight = function(server, user, group, path){
 
 settings.install = function(server, callback){
 
-	console.log("   Copying ...");
 	if(typeof server.config.build == 'undefined' || typeof server.config.build.install_dir == 'undefined'){
 
 		installDir = '/mnt/MC/CraftBukkit/';
@@ -96,7 +95,6 @@ settings.install = function(server, callback){
 	try {
 
 		copyFolder(server, installDir, function(){ callback(); });
-		console.log("   ... done");
 
 
 	} catch(ex) {

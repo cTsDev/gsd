@@ -203,7 +203,6 @@ restserver.get('/gameservers/:id/log/:lines', function(req, res, next){
 });
 
 restserver.get(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
-	console.info("Old");
 	if (!restauth(req, req.params[0], "s:files:get")){res = unauthorized(res); return next();}
 	service = servers[req.params[0]];
 	res.send({'contents':service.readfile(req.params[1])});
