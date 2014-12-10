@@ -11,28 +11,43 @@ var logger = new (winston.Logger)({
 function log(){
 }
 
-log.debug = function(l) {
+log.debug = function(l, data) {
+
 	logger.transports.file.level = 'debug';
-	logger.debug(l);
-	if(rest.debug)
-	{
-		console.info(l);
+	logger.debug(l, { meta: data });
+	if(rest.debug) {
+
+		console.log("[DEBUG] " + l);
+
 	}
+
 }
 
-log.error = function(l) {
-	logger.error(l);
-	console.error(l);
+log.error = function(l, data) {
+
+	logger.error(l, { meta: data });
+	console.error("[ERROR] " + l);
+
 }
 
-log.verbose = function(l) {
+log.verbose = function(l, data) {
+
 	logger.transports.file.level = 'verbose';
-	logger.verbose(l);
+	logger.verbose(l, { meta: data });
+	console.log("[VERBOSE] " + l);
+
 }
 
-log.info = function(l) {
-	logger.info(l);
-	console.error(l);
+log.info = function(l, data) {
+
+	logger.info(l, { meta: data });
+	console.info("[INFO] " + l);
+
+}
+
+log.warn = function(l, data) {
+	logger.warn(l, { meta: data });
+	console.info("[WARN] " + l);
 }
 
 module.exports = log;

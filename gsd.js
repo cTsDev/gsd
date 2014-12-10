@@ -6,21 +6,22 @@ require('./interfaces/ftp.js');
 
 var servers = require('./services');
 var exec = require('child_process').exec;
+var log = require('./log.js');
 
 process.argv.forEach(function(val, index, array) {
 
 	if(val == 'debug')
 	{
 		rest.debug = true;
-		console.info("Now running in debug mode!");
+		log.info("Now running in debug mode!");
 	}
 
 });
 
 process.on('SIGINT', function() {
 
-	console.log("Detected hard shutdown!");
-	console.log("Killing all running java processes on the server!");
+	log.info("Detected hard shutdown!");
+	log.info("Killing all running java processes on the server!");
 
 	try {
 
@@ -28,18 +29,17 @@ process.on('SIGINT', function() {
 		server.forEach(function(s) {
 			if(s.ps) {
 				run = exec('kill '+ s.ps.pid, function(error, stdout, stderr) {
-					console.log("Killing server with pid of "+ s.ps.pid + "out: "+ stdout);
+					log.info("Killing server with pid of "+ s.ps.pid + "out: "+ stdout);
 				});
 			}
 		});
 
 	} catch (ex) {
-		console.log(ex.stack);
-		console.log("Exception occured trying to stop all running servers.");
-		console.log("Please run 'killall java -9' before restarting GSD!");
+		log.error("Exception occured trying to stop all running servers.",ex.stack);
+		log.warn("Please run 'killall java -9' before restarting GSD!");
 	}
 
-	console.log("All shutdown parameters complete. Stopping...\n");
+	log.info("All shutdown parameters complete. Stopping...\n");
 	process.exit();
 
 });

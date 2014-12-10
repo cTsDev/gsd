@@ -17,6 +17,7 @@ var bukget = require('bukget')({
 	localAddress : false,
 	pluginServer: 'bukkit'
 });
+var log = require('../log.js');
 
 settings.name = "Minecraft"
 settings.stop_command = 'stop'
@@ -84,7 +85,7 @@ settings.install = function(server, callback){
 	if(typeof server.config.build == 'undefined' || typeof server.config.build.install_dir == 'undefined'){
 
 		installDir = '/mnt/MC/CraftBukkit/';
-		console.log("      No install directory defined. Using default " + installDir);
+		log.warn("No install directory defined. Using default " + installDir);
 
 	} else {
 
@@ -99,8 +100,7 @@ settings.install = function(server, callback){
 
 	} catch(ex) {
 
-		console.log("   An error occured trying to copy over the files for the following server: "+ server.config.name);
-		console.log("   " + ex.stack);
+		log.error("An error occured trying to copy over the files for the following server: "+ server.config.name, ex);
 
 	}
 
