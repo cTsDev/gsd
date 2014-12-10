@@ -3,7 +3,7 @@ fs = require('fs');
 pathlib = require('path');
 glob = require('glob')
 symlinkFolder = require('../create.js').symlinkFolder;
-var log = require('../log.js');
+var log = require('../../log.js');
 
 
 var settings = {};

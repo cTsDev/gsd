@@ -3,6 +3,7 @@ fs = require('fs');
 pathlib = require('path');
 glob = require('glob');
 copyFolder = require('../create.js').copyFolder;
+var log = require('../../log.js');
 var properties = require ("properties");
 var async = require('async');
 var trim = require("trim");
@@ -17,7 +18,6 @@ var bukget = require('bukget')({
 	localAddress : false,
 	pluginServer: 'bukkit'
 });
-var log = require('../log.js');
 
 settings.name = "Minecraft"
 settings.stop_command = 'stop'

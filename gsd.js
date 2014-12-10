@@ -12,8 +12,13 @@ process.argv.forEach(function(val, index, array) {
 
 	if(val == 'debug')
 	{
-		rest.debug = true;
+		log.d = true;
 		log.info("Now running in debug mode!");
+	}
+	if(val == 'verbose')
+	{
+		log.v = true;
+		log.info("Now running with verbose output!");
 	}
 
 });
