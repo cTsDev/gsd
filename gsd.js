@@ -1,16 +1,32 @@
 var config = require('./config.json');
 
 require('./interfaces/console.js');
-require('./interfaces/rest.js');
+var rest = require('./interfaces/rest.js');
 require('./interfaces/ftp.js');
 
 var servers = require('./services');
 var exec = require('child_process').exec;
+var log = require('./log.js');
+
+process.argv.forEach(function(val, index, array) {
+
+	if(val == 'debug')
+	{
+		log.d = true;
+		log.info("Now running in debug mode!");
+	}
+	if(val == 'verbose')
+	{
+		log.v = true;
+		log.info("Now running with verbose output!");
+	}
+
+});
 
 process.on('SIGINT', function() {
 
-	console.log("Detected hard shutdown!");
-	console.log("Killing all running java processes on the server!");
+	log.info("Detected hard shutdown!");
+	log.info("Killing all running java processes on the server!");
 
 	try {
 
@@ -18,18 +34,17 @@ process.on('SIGINT', function() {
 		server.forEach(function(s) {
 			if(s.ps) {
 				run = exec('kill '+ s.ps.pid, function(error, stdout, stderr) {
-					console.log("Killing server with pid of "+ s.ps.pid + "out: "+ stdout);
+					log.info("Killing server with pid of "+ s.ps.pid + "out: "+ stdout);
 				});
 			}
 		});
 
 	} catch (ex) {
-		console.log(ex.stack);
-		console.log("Exception occured trying to stop all running servers.");
-		console.log("Please run 'killall java -9' before restarting GSD!");
+		log.error("Exception occured trying to stop all running servers.",ex.stack);
+		log.warn("Please run 'killall java -9' before restarting GSD!");
 	}
 
-	console.log("All shutdown parameters complete. Stopping...\n");
+	log.info("All shutdown parameters complete. Stopping...\n");
 	process.exit();
 
 });

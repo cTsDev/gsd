@@ -11,6 +11,7 @@ var path = require('path');
 var async = require('async');
 var mime = require('mime');
 var request = require('request');
+var log = require('../log.js');
 
 restserver.use(restify.bodyParser());
 restserver.use(restify.authorizationParser());
@@ -99,10 +100,9 @@ restserver.put('/gameservers/:id', function info(req, res, next){
 			service.updatevariables(JSON.parse(req.params['variables']), true);
 			saveconfig(config);
 
-		} catch(err){
+		} catch(ex){
 
-			console.log("Error encountered when trying to update server variables.");
-			console.log(err.stack);
+			log.error("Error encountered when trying to update server variables.", ex);
 
 		}
 
@@ -116,10 +116,9 @@ restserver.put('/gameservers/:id', function info(req, res, next){
 			service.updatekeys(JSON.parse(req.params['keys']));
 			saveconfig(config);
 
-		} catch(err){
+		} catch(ex){
 
-			console.log("Error encountered when trying to update server permission keys.");
-			console.log(err.stack);
+			log.error("Error encountered when trying to update server permission keys.", ex);
 
 		}
 
@@ -133,10 +132,9 @@ restserver.put('/gameservers/:id', function info(req, res, next){
 			service.updatebuild(JSON.parse(req.params['build']));
 			saveconfig(config);
 
-		} catch(err){
+		} catch(ex){
 
-			console.log("Error encountered when trying to update server CPU information.");
-			console.log(err.stack);
+			log.error("Error encountered when trying to update server CPU information.", ex);
 
 		}
 
@@ -248,21 +246,20 @@ restserver.get(/^\/gameservers\/(\d+)\/download\/(\w+)/, function(req, res, next
 						filestream.pipe(res);
 
 					}else{
-						console.log("[WARN] Downloader failed to authenticate: server did not respond with valid download path.");
+						log.warn("Downloader failed to authenticate: server did not respond with valid download path.");
 						res.send({'error': 'Server did not respond with a valid download path.'});
 					}
 				} catch (ex) {
-					console.log("[WARN] Downloader failed to authenticate die to a GSD error:");
-					console.log(ex.stack);
+					log.warn("Downloader failed to authenticate die to a GSD error", ex);
 					res.send({'error': 'Server was unable to authenticate this request.'});
 				}
 			}else{
-				console.log("[WARN] Downloader failed to authenticate: Server returned error code [HTTP/1.1 " + response.statusCode + "].");
+				log.warn("Downloader failed to authenticate: Server returned error code [HTTP/1.1 " + response.statusCode + "].");
 				res.send({'error': 'Server responded with an error code. [HTTP/1.1 ' + response.statusCode + ']'});
 			}
 		});
 	}else{
-		console.log("[WARN] Downloader failed to authenticate: no authentication URL provided.");
+		log.warn("Downloader failed to authenticate: no authentication URL provided.");
 		res.send({'error': 'This action is not configured correctly in the configuration.'});
 	}
 
@@ -349,5 +346,5 @@ restserver.post('/gameservers/:id/plugins/search', function command(req, res, ne
 });
 
 restserver.listen(config.daemon.listenport, function() {
-	console.log('%s listening at %s', restserver.name, restserver.url);
+	log.info(restserver.name + " listening at " + restserver.url);
 });

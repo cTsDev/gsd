@@ -19,6 +19,7 @@ var utls = require("../utls.js");
 var userid = require('userid');
 var targz = require('tar.gz');
 var unzip = require('unzip');
+var log = require('../log.js');
 
 var OFF = 0; ON = 1; STARTING = 2; STOPPING = 3; CHANGING_GAMEMODE = 4;
 
@@ -86,13 +87,13 @@ GameServer.prototype.updatebuild = function(build){
 };
 
 GameServer.prototype.preflight = function(callback) {
-	console.info("[INFO] Running preflight for " + this.config.user);
+	log.verbose("Running preflight for " + this.config.user);
 	try{
 		this.plugin.preflight(this, userid.uid(this.config.user), userid.gid("gsdusers"), this.config.path);
 	} catch(ex) {
 		console.error(ex.stack);
 	}
-	console.info("[INFO] Completed preflight.");
+	log.verbose("Completed preflight.");
 	callback();
 };
 
@@ -107,7 +108,7 @@ GameServer.prototype.turnon = function(callback) {
 	this.pid = this.ps.pid;
 
 	this.setStatus(STARTING);
-	console.log("[INFO] Starting server for "+ self.config.user +" ("+ self.config.name +")");
+	log.verbose("Starting server for "+ self.config.user +" ("+ self.config.name +")");
 
 	try {
 
@@ -115,18 +116,18 @@ GameServer.prototype.turnon = function(callback) {
 
 		if(this.cpu_limit > 0) {
 
-			console.log("[INFO] Starting CPU Limit for process " + this.pid);
+			log.verbose("Starting CPU Limit for process " + this.pid);
 			this.cpu = pty.spawn('cpulimit',  ['-p', this.ps.pid, '-z', '-l', this.cpu_limit]);
-			console.log("[INFO] CPULimit set to " + this.cpu_limit);
+			log.verbose("CPULimit set to " + this.cpu_limit);
 
 			this.cpu.on('close', function(code) {
-				console.log("[WARN] Child process 'cpulimit' for process " + this.ps.pid + " exited with code " + code + ".");
+				log.warn("Child process 'cpulimit' for process " + this.ps.pid, code);
 			});
 
 		}
 
 	} catch(ex) {
-		console.log("[WARN] No CPU Limit defined for server. Running process with unlimited CPU time.");
+		log.warn("No CPU Limit defined for server. Running process with unlimited CPU time.", ex);
 	}
 
 	callback();
@@ -138,7 +139,7 @@ GameServer.prototype.turnon = function(callback) {
 			if (output.indexOf(self.plugin.eula_trigger) !=-1){
 				self.setStatus(OFF);
 				self.emit('crash');
-				console.log("[WARN] Server " + self.config.name + " needs to accept EULA");
+				log.warn("Server " + self.config.name + " needs to accept EULA");
 			}
 			if (output.indexOf(self.plugin.started_trigger) !=-1){
 				self.setStatus(ON);
@@ -147,21 +148,21 @@ GameServer.prototype.turnon = function(callback) {
 				self.usagestats = {};
 				self.querystats = {};
 				self.emit('started');
-				console.log("[INFO] Started server for "+ self.config.user +" ("+ self.config.name +")");
+				log.verbose("Started server for "+ self.config.user +" ("+ self.config.name +")");
 			}
 		}
 	});
 
 	this.ps.on('exit', function(){
 		if (self.status == STOPPING){
-			console.log("[INFO] Stopping server for "+ self.config.user +" ("+ self.config.name +")");
+			log.verbose("Stopping server for "+ self.config.user +" ("+ self.config.name +")");
 			self.setStatus(OFF);
 			self.emit('off');
 	    	return;
 		}
 
 		if (self.status == ON || self.status == STARTING){
-			console.log("[WARN] Server appears to have crashed for "+ self.config.user +" ("+ self.config.name +")");
+			log.warn("Server appears to have crashed for "+ self.config.user +" ("+ self.config.name +")");
 			self.setStatus(OFF);
 			self.emit('off');
 			self.emit('crash');
@@ -169,14 +170,14 @@ GameServer.prototype.turnon = function(callback) {
 	});
 
 	this.on('crash', function(){
-		console.log("[WARN] Restarting server after crash for "+ self.config.user +" ("+ self.config.name +")");
+		log.warn("Restarting server after crash for "+ self.config.user +" ("+ self.config.name +")");
 		if (self.status == ON){
 			self.restart();
 		}
 	});
 
 	this.on('off', function clearup(){
-		console.log("[INFO] Stopping Server");
+		log.verbose("Stopping Server " + self.config.name);
 		clearInterval(self.queryCheck);
 		clearInterval(self.statCheck);
 		self.usagestats = {};
@@ -184,7 +185,7 @@ GameServer.prototype.turnon = function(callback) {
 		usage.clearHistory(self.pid);
 		self.pid = undefined;
 		self.cpu = undefined;
-		console.log("[INFO] Sever Stopped");
+		log.verbose("Sever Stopped");
 	});
 };
 
@@ -216,27 +217,27 @@ GameServer.prototype.create = function(){
 
 	async.series([
 	function(callback) {
-		console.log("[INFO] Creating user");
+		log.verbose("Creating user " + config.user);
 		createUser(config.user, config.path, function cb(){callback(null);});
-		console.log("[INFO] User Created");
+		log.verbose("User Created");
 	},
 	function(callback) {
-		console.log("[INFO] Installing Plugin");
+		log.verbose("Installing Plugin");
 		self.plugin.install(self, function cb(){callback(null);});
-		console.log("[INFO] Plugin Installed");
+		log.verbose("Plugin Installed");
 	},
 	function(callback) {
-		console.log("[INFO] Fixing Permissions");
+		log.verbose("Fixing Permissions");
 		fixperms(config.user, config.path, function cb(){callback(null);});
-		console.log("[INFO] Permissions Fixed");
+		log.verbose("Permissions Fixed");
 	}]);
 };
 
 GameServer.prototype.delete = function(){
-	console.log("[INFO] Deleting Server " + this.config.name);
+	log.verbose("Deleting Server " + this.config.name);
 	this.kill();
 	deleteUser(this.config.user, function cb(){callback(null);});
-	console.log("[INFO] Server Deleted")
+	log.verbose("Server Deleted")
 };
 
 GameServer.prototype.setStatus = function(status){

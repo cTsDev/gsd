@@ -48,7 +48,8 @@
 		"trim": "",
 		"unzip" : "",
 		"usage" : "",
-		"userid" : ""
+		"userid" : "",
+		"winston" : ""
 	},
 	"engines": {
 		"node": ">=0.6"

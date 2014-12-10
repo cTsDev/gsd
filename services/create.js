@@ -6,26 +6,25 @@ var ncp = require('ncp').ncp;
 var format = require('util').format;
 var executeCommand = require('../utls').executeCommand;
 var userid = require('userid');
+var log = require('../log.js');
 
 function createUser(username, home, callback){
 
 	try {
 
-		console.log("   Adding user "+ username );
 		command = format("useradd -m -d %s -s /bin/false -G gsdusers %s", home, username);
 		executeCommand(command, callback);
-		console.log("   ... done");
 
 	} catch(ex) {
-		console.log("Unable to create a user on the system.");
+		log.error("Unable to create a user on the system.", ex);
 	}
 
 }
 
 function deleteUser(username, callback){
-	console.log("[INFO] Removing user " + username + "====");
+	log.debug("Removing user " + username);
 	command = format("deluser --remove-home %s", username);
-	console.log("[INFO] User Removed");
+	log.debug("User Removed");
 	// @TODO: Actually remove the server from config.json...
 	executeCommand(command, callback)
 }
@@ -38,9 +37,9 @@ function linkDir(from_path, to_path, callback){
 
 
 function fixperms(user, path, callback){
-	console.log("   Fixing file permissions...");
+	log.debug("Fixing file permissions");
 	executeCommand("chown -R "+ user +":gsdusers "+ path, callback);
-	console.log("   ... done");
+	log.debug("Permissions fixed");
 };
 
 function replaceFiles(base_folder, files, backing_folder, callback){
@@ -60,28 +59,24 @@ function replaceFiles(base_folder, files, backing_folder, callback){
 		var fileFrom = pathlib.join(backing_folder, file);
 
 		fs.exists(fileTo, function (exists) {
-	if (exists){
-	  fs.unlink(fileTo, function(err){
-	    if (err) icallback();
-	    ncp(fileFrom, fileTo, function(err){
-		if (err) throw err;
-		console.log('success!');
-		icallback();
-	      });
-	  });
+			if(exists) {
+				fs.unlink(fileTo, function(err){
+					if (err) icallback();
+					ncp(fileFrom, fileTo, function(err){
+						if (err) throw err;
+						icallback();
+					});
+				});
 
-	}else{
-	  icallback();
-	}
+			} else {
+				icallback();
+			}
 		});
 	}, function(err){
-		// if any of the saves produced an error, err would equal that error
 		if( err ) {
-	// One of the iterations produced an error.
-	// All processing will now stop.
-	console.log('A file failed to process');
+			log.error('A file failed to process');
 		} else {
-	console.log('All files have been processed successfully');
+			log.info('All files have been processed successfully');
 		}
 	});
 	callback();

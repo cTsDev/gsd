@@ -3,6 +3,7 @@ fs = require('fs');
 pathlib = require('path');
 glob = require('glob');
 copyFolder = require('../create.js').copyFolder;
+var log = require('../../log.js');
 var properties = require ("properties");
 var async = require('async');
 var trim = require("trim");
@@ -84,7 +85,7 @@ settings.install = function(server, callback){
 	if(typeof server.config.build == 'undefined' || typeof server.config.build.install_dir == 'undefined'){
 
 		installDir = '/mnt/MC/CraftBukkit/';
-		console.log("      No install directory defined. Using default " + installDir);
+		log.warn("No install directory defined. Using default " + installDir);
 
 	} else {
 
@@ -99,8 +100,7 @@ settings.install = function(server, callback){
 
 	} catch(ex) {
 
-		console.log("   An error occured trying to copy over the files for the following server: "+ server.config.name);
-		console.log("   " + ex.stack);
+		log.error("An error occured trying to copy over the files for the following server: "+ server.config.name, ex);
 
 	}
 
