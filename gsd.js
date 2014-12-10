@@ -39,10 +39,7 @@ process.on('SIGINT', function() {
 		console.log("Please run 'killall java -9' before restarting GSD!");
 	}
 
-	console.log("************* IMPORTANT *************");
-	console.log("Please run 'killall cpulimit -9' now.");
-	console.log("************* IMPORTANT *************");
-	console.log("All shutdown parameters complete. Stopping...");
+	console.log("All shutdown parameters complete. Stopping...\n");
 	process.exit();
 
 });

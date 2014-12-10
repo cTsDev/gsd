@@ -9,6 +9,9 @@ var initServer = require('../services/index.js').initServer;
 var restserver = restify.createServer();
 var path = require('path');
 var debug = false;
+var async = require('async');
+var mime = require('mime');
+var request = require('request');
 
 restserver.use(restify.bodyParser());
 restserver.use(restify.authorizationParser());
@@ -47,18 +50,6 @@ function unauthorized(res){
 
 }
 
-restserver.get('/', function info(req, res, next){
-	if (!restauth(req, -1, "g:info")){res = unauthorized(res); return next();}
-
-	_plugins = {};
-	for (var key in plugins) {
-	settings = plugins[key];
-	_plugins[settings.name] = {"file":key.slice(0, -3)};
-	}
-	response = {'gsd_version':"0.1.1", 'plugins':_plugins, 'settings':{'consoleport':config.daemon.consoleport}};
-	res.send(response);
-});
-
 restserver.get('/gameservers/', function info(req, res, next){
 	if (!restauth(req, -1, "g:list")){res = unauthorized(res); return next();}
 	response = [];
@@ -85,7 +76,7 @@ restserver.del('/gameservers/:id', function info(req, res, next){
 	if (!restauth(req, req.params.id, "g:delete")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
 	// TODO: if on, turn off
-	service.delete();	var ftpd = require('ftpd');
+	service.delete();
 	id = config.servers.splice(req.params.id,1);
 	saveconfig(config);
 	res.send("ok");
@@ -100,22 +91,76 @@ restserver.get('/gameservers/:id', function (req, res, next){
 
 restserver.put('/gameservers/:id', function info(req, res, next){
 	if (!restauth(req, req.params.id, "g:update")){res = unauthorized(res); return next();}
-	try {
-		service = servers[req.params.id];
-		service.updatevariables(JSON.parse(req.params['variables']), true);
-		saveconfig(config);
-		res.send(service.info());
-	} catch(err){
-		console.log(err.stack);
-		res.send(service.info());
+
+	if(req.params['variables']) {
+
+		try {
+
+			service = servers[req.params.id];
+			service.updatevariables(JSON.parse(req.params['variables']), true);
+			saveconfig(config);
+
+		} catch(err){
+
+			console.log("Error encountered when trying to update server variables.");
+			console.log(err.stack);
+
+		}
+
 	}
+
+	if(req.params['keys']) {
+
+		try {
+
+			service = servers[req.params.id];
+			service.updatekeys(JSON.parse(req.params['keys']));
+			saveconfig(config);
+
+		} catch(err){
+
+			console.log("Error encountered when trying to update server permission keys.");
+			console.log(err.stack);
+
+		}
+
+	}
+
+	if(req.params['build']) {
+
+		try {
+
+			service = servers[req.params.id];
+			service.updatebuild(JSON.parse(req.params['build']));
+			saveconfig(config);
+
+		} catch(err){
+
+			console.log("Error encountered when trying to update server CPU information.");
+			console.log(err.stack);
+
+		}
+
+	}
+
+	res.send(service.info());
+
 });
 
 
 restserver.get('/gameservers/:id/on', function on(req, res, next){
 	if (!restauth(req, req.params.id, "s:power")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
-	service.turnon();
+
+
+	async.series([
+		function(callback) {
+			service.preflight(function(){callback(null);});
+		},
+		function(callback) {
+			service.turnon(function(){callback(null);});
+		}
+	]);
 	res.send('ok')
 });
 
@@ -129,7 +174,7 @@ restserver.get('/gameservers/:id/off', function off(req, res, next){
 restserver.get('/gameservers/:id/kill', function off(req, res, next){
 	if (!restauth(req, req.params.id, "s:power")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
-	service.killpid();
+	service.kill();
 	res.send('ok')
 });
 
@@ -151,8 +196,8 @@ restserver.get('/gameservers/:id/maplist', function maplist(req, res, next){
 });
 restserver.get('/gameservers/:id/query', function query(req, res, next){
 	if (!restauth(req, req.params.id, "s:query")){res = unauthorized(res); return next();}
-	service = servers[req.params.id]; res.send(service.lastquery());
-
+	service = servers[req.params.id];
+	res.send(service.lastquery());
 });
 
 restserver.post('/gameservers/:id/console', function command(req, res, next){
@@ -168,10 +213,60 @@ restserver.get('/gameservers/:id/addonsinstalled', function command(req, res, ne
 	res.send(service.addonlist());
 });
 
+restserver.get('/gameservers/:id/log/:lines', function(req, res, next){
+	if(!restauth(req, req.params.id, "s:console")){res = unauthorized(res); return next();}
+	service = servers[req.params.id];
+	res.send(service.taillog(req.params.lines));
+});
+
 restserver.get(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
 	if (!restauth(req, req.params[0], "s:files:get")){res = unauthorized(res); return next();}
 	service = servers[req.params[0]];
 	res.send({'contents':service.readfile(req.params[1])});
+});
+
+restserver.get(/^\/gameservers\/(\d+)\/download\/(\w+)/, function(req, res, next) {
+
+	service = servers[req.params[0]];
+	process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+	if (config.interfaces.rest.authurl != null){
+		request.post(config.interfaces.rest.authurl, {form: { token: req.params[1], server: req.params[0]}}, function (error, response, body) {
+			if (!error && response.statusCode == 200) {
+				try {
+					json = JSON.parse(body);
+					if (json.path && json.path != null){
+
+						var filename = path.basename(json.path);
+						var mimetype = mime.lookup(json.path);
+						var file = service.returnFilePath(json.path);
+						var stat = fs.statSync(file);
+						res.writeHead(200, {
+							'Content-Type': mimetype,
+							'Content-Length': stat.size,
+							'Content-Disposition': 'attachment; filename=' + filename
+						});
+						var filestream = fs.createReadStream(file);
+						filestream.pipe(res);
+
+					}else{
+						console.log("[WARN] Downloader failed to authenticate: server did not respond with valid download path.");
+						res.send({'error': 'Server did not respond with a valid download path.'});
+					}
+				} catch (ex) {
+					console.log("[WARN] Downloader failed to authenticate die to a GSD error:");
+					console.log(ex.stack);
+					res.send({'error': 'Server was unable to authenticate this request.'});
+				}
+			}else{
+				console.log("[WARN] Downloader failed to authenticate: Server returned error code [HTTP/1.1 " + response.statusCode + "].");
+				res.send({'error': 'Server responded with an error code. [HTTP/1.1 ' + response.statusCode + ']'});
+			}
+		});
+	}else{
+		console.log("[WARN] Downloader failed to authenticate: no authentication URL provided.");
+		res.send({'error': 'This action is not configured correctly in the configuration.'});
+	}
+
 });
 
 restserver.get(/^\/gameservers\/(\d+)\/folder\/(.+)/, function(req, res, next) {
@@ -181,28 +276,38 @@ restserver.get(/^\/gameservers\/(\d+)\/folder\/(.+)/, function(req, res, next) {
 });
 
 restserver.put(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
-	if (!restauth(req, req.params[0], "s:files:put")) {
-		res = unauthorized(res);
-		return next();
-	}
 	if ('contents' in req.params) {
+		if (!restauth(req, req.params[0], "s:files:put")) {
+			res = unauthorized(res);
+			return next();
+		}
 		service = servers[req.params[0]];
 		res.send(service.writefile(req.params[1], req.params['contents']));
 	}
 	if ('url' in req.params) {
+		if (!restauth(req, req.params[0], "s:files:put")) {
+			res = unauthorized(res);
+			return next();
+		}
 		service = servers[req.params[0]];
 		res.send(service.downloadfile(req.params['url'], req.params[1]));
 	}
 	if ('zip' in req.params) {
+		if (!restauth(req, req.params[0], "s:files:zip")) {
+			res = unauthorized(res);
+			return next();
+		}
 		service = servers[req.params[0]];
 		res.send(service.zipfile(req.params[1]));
 	}
 	if ('unzip' in req.params) {
-
+		if (!restauth(req, req.params[0], "s:files:zip")) {
+			res = unauthorized(res);
+			return next();
+		}
 		service = servers[req.params[0]];
 		ext = path.extname(req.params[1]);
 		res.send(service.unzipfile(ext, req.params[1]));
-
 	}
 });
 

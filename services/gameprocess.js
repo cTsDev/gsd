@@ -29,6 +29,8 @@ function GameServer(config) {
 	this.plugin = plugins[this.config.plugin + '.js'];
 
 	this.variables = utls.mergedicts(this.plugin.defaultvariables, this.config.variables);
+	this.keys = this.config.keys;
+	this.build = this.config.build;
 	this.commandline = merge(this.plugin.joined, this.variables);
 	this.exe = this.plugin.exe;
 
@@ -59,16 +61,48 @@ GameServer.prototype.updatevariables = function(variables, replace){
 	savesettings();
 };
 
+GameServer.prototype.updatekeys = function(keys){
 
-GameServer.prototype.turnon = function() {
+	this.keys = utls.mergedicts(this.keys, keys);
+
+	var keyList = {};
+	for(var i in this.keys) {
+		if(this.keys[i].length !== 0) {
+			keyList[i] = this.keys[i];
+		}
+	}
+
+	this.config.keys = keyList;
+	savesettings();
+
+};
+
+GameServer.prototype.updatebuild = function(build){
+
+	this.build = utls.mergedicts(this.build, build);
+
+	this.config.build = this.build;
+	savesettings();
+
+};
+
+GameServer.prototype.preflight = function(callback) {
+	console.info("[INFO] Running preflight for " + this.config.user);
+	try{
+		this.plugin.preflight(this, userid.uid(this.config.user), userid.gid("gsdusers"), this.config.path);
+	} catch(ex) {
+		console.error(ex.stack);
+	}
+	console.info("[INFO] Completed preflight.");
+	callback();
+};
+
+GameServer.prototype.turnon = function(callback) {
 	var self = this;
 	// Shouldn't happen, but does on a crash after restart
 	if (!this.status == OFF){
-		// console.log("Tried to turn on but status is already : " + self.status);
 		return;
 	}
-
-	this.plugin.preflight(this);
 
 	this.ps = pty.spawn(this.exe, this.commandline, {cwd: this.config.path, uid: userid.uid(self.config.user), gid: userid.gid("gsdusers")});
 	this.pid = this.ps.pid;
@@ -82,16 +116,21 @@ GameServer.prototype.turnon = function() {
 
 		if(this.cpu_limit > 0) {
 
-			exec('cpulimit -p ' + this.ps.pid + ' -l ' + this.cpu_limit + ' -z -d', function(error, stdout, stderr) {
-				console.log("Beginning CPU Limiting (" + this.cpu_limit + "%) for process: " + this.ps.pid);
-				console.log("Output: " + stdout);
+			console.log("[INFO] Starting CPU Limit for process " + this.pid);
+			this.cpu = pty.spawn('cpulimit',  ['-p', this.ps.pid, '-z', '-l', this.cpu_limit]);
+			console.log("[INFO] CPULimit set to " + this.cpu_limit);
+
+			this.cpu.on('close', function(code) {
+				console.log("[WARN] Child process 'cpulimit' for process " + this.ps.pid + " exited with code " + code + ".");
 			});
 
 		}
 
 	} catch(ex) {
-		console.log("Assumed outdated GSD config. No CPU Limit defined for server!");
+		console.log("[WARN] No CPU Limit defined for server. Running process with unlimited CPU time.");
 	}
+
+	callback();
 
 	this.ps.on('data', function(data){
 		output = data.toString();
@@ -100,7 +139,7 @@ GameServer.prototype.turnon = function() {
 			if (output.indexOf(self.plugin.eula_trigger) !=-1){
 				self.setStatus(OFF);
 				self.emit('crash');
-				console.log("Server " + self.config.name + " needs to accept EULA");
+				console.log("[WARN] Server " + self.config.name + " needs to accept EULA");
 			}
 			if (output.indexOf(self.plugin.started_trigger) !=-1){
 				self.setStatus(ON);
@@ -109,22 +148,26 @@ GameServer.prototype.turnon = function() {
 				self.usagestats = {};
 				self.querystats = {};
 				self.emit('started');
+<<<<<<< HEAD
 				console.log("Started server for "+ self.config.user +" ("+ self.config.name +")");
 				log.debug("test");
+=======
+				console.log("[INFO] Started server for "+ self.config.user +" ("+ self.config.name +")");
+>>>>>>> master
 			}
 		}
 	});
 
 	this.ps.on('exit', function(){
 		if (self.status == STOPPING){
-			console.log("Stopping server for "+ self.config.user +" ("+ self.config.name +")");
+			console.log("[INFO] Stopping server for "+ self.config.user +" ("+ self.config.name +")");
 			self.setStatus(OFF);
 			self.emit('off');
 	    	return;
 		}
 
 		if (self.status == ON || self.status == STARTING){
-			console.log("Server appears to have crashed for "+ self.config.user +" ("+ self.config.name +")");
+			console.log("[WARN] Server appears to have crashed for "+ self.config.user +" ("+ self.config.name +")");
 			self.setStatus(OFF);
 			self.emit('off');
 			self.emit('crash');
@@ -132,19 +175,22 @@ GameServer.prototype.turnon = function() {
 	});
 
 	this.on('crash', function(){
-		console.log("Restarting server after crash for "+ self.config.user +" ("+ self.config.name +")");
+		console.log("[WARN] Restarting server after crash for "+ self.config.user +" ("+ self.config.name +")");
 		if (self.status == ON){
-		self.restart();
+			self.restart();
 		}
 	});
 
 	this.on('off', function clearup(){
+		console.log("[INFO] Stopping Server");
 		clearInterval(self.queryCheck);
 		clearInterval(self.statCheck);
 		self.usagestats = {};
 		self.querystats = {};
 		usage.clearHistory(self.pid);
 		self.pid = undefined;
+		self.cpu = undefined;
+		console.log("[INFO] Sever Stopped");
 	});
 };
 
@@ -159,7 +205,7 @@ GameServer.prototype.turnoff = function(){
 	}
 };
 
-GameServer.prototype.killpid = function(){
+GameServer.prototype.kill = function(){
 	var self = this;
 	clearTimeout(self.queryCheck);
 	if (!self.status == OFF){
@@ -176,18 +222,27 @@ GameServer.prototype.create = function(){
 
 	async.series([
 	function(callback) {
+		console.log("[INFO] Creating user");
 		createUser(config.user, config.path, function cb(){callback(null);});
+		console.log("[INFO] User Created");
 	},
 	function(callback) {
+		console.log("[INFO] Installing Plugin");
 		self.plugin.install(self, function cb(){callback(null);});
+		console.log("[INFO] Plugin Installed");
 	},
 	function(callback) {
+		console.log("[INFO] Fixing Permissions");
 		fixperms(config.user, config.path, function cb(){callback(null);});
+		console.log("[INFO] Permissions Fixed");
 	}]);
 };
 
 GameServer.prototype.delete = function(){
-	deleteUser(this.config.user);
+	console.log("[INFO] Deleting Server " + this.config.name);
+	this.kill();
+	deleteUser(this.config.user, function cb(){callback(null);});
+	console.log("[INFO] Server Deleted")
 };
 
 GameServer.prototype.setStatus = function(status){
@@ -201,6 +256,10 @@ GameServer.prototype.query = function(self){
 	r = self.plugin.query(self);
 	self.emit('query');
 	return r;
+};
+
+GameServer.prototype.taillog = function(lines){
+	return this.plugin.getTail(this.config, lines);
 };
 
 GameServer.prototype.procStats = function(self){
@@ -238,10 +297,6 @@ GameServer.prototype.restart = function(){
 	this.turnoff();
 };
 
-GameServer.prototype.kill = function(){
-	this.ps.kill();
-};
-
 GameServer.prototype.send = function(data){
 	if (this.status == ON || this.status == STARTING){
 		this.ps.write(data + '\n');
@@ -258,6 +313,11 @@ GameServer.prototype.console = function Console(){
 GameServer.prototype.readfile = function readfile(f){
 	file = pathlib.join(this.config.path, pathlib.normalize(f));
 	return fs.readFileSync(file, "utf8");
+};
+
+GameServer.prototype.returnFilePath = function returnFilePath(f){
+	file = pathlib.join(this.config.path, pathlib.normalize(f));
+	return file;
 };
 
 GameServer.prototype.dir = function dir(f){
@@ -357,8 +417,7 @@ GameServer.prototype.getgamemodes = function getgamemode(res){
 GameServer.prototype.installgamemode = function installgamemode(){
 	managerlocation = pathlib.join(__dirname,"gamemodes",self.config.plugin,"gamemodemanager");
 	if (self.status == ON){
-	self.turnoff();
-	console.log("HERE");
+		self.turnoff();
 	}
 	self.setStatus(CHANGING_GAMEMODE);
 	console.log(self.config.path)
@@ -368,12 +427,12 @@ GameServer.prototype.installgamemode = function installgamemode(){
 
 	installer.stdout.on('data', function(data){
 	if (data == "\r\n"){return}
-	console.log(data);
-	self.emit('console',data);
+		console.log(data);
+		self.emit('console',data);
 	});
 
 	installer.on('exit', function(){
-	self.setStatus(OFF);
+		self.setStatus(OFF);
 	});
 };
 

@@ -1,7 +1,7 @@
 {
 	"name": "GameServerDaemon",
 	"preferGlobal": true,
-	"version": "0.1.1",
+	"version": "0.1.4",
 	"author": "Eoin <eoin@gametainers.com>",
 	"maintainers": [
 		{
@@ -36,6 +36,7 @@
 		"glob" : "",
 		"js-yaml" : "",
 		"mc-ping" : "",
+		"mime": "",
 		"mcquery" : "",
 		"ncp" : "",
 		"properties" : "",
@@ -44,6 +45,7 @@
 		"restify" : "",
 		"socket.io" : "",
 		"tar.gz" : "git://github.com/cranic/node-tar.gz.git",
+		"trim": "",
 		"unzip" : "",
 		"usage" : "",
 		"userid" : "",
