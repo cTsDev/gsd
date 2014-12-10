@@ -45,6 +45,7 @@
 		"restify" : "",
 		"socket.io" : "",
 		"tar.gz" : "git://github.com/cranic/node-tar.gz.git",
+		"trim": "",
 		"unzip" : "",
 		"usage" : "",
 		"userid" : ""

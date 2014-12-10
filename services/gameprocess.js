@@ -103,7 +103,6 @@ GameServer.prototype.turnon = function(callback) {
 		return;
 	}
 
-	console.info(this.config.path + " " + userid.uid(self.config.user) + " " + userid.gid("gsdusers"));
 	this.ps = pty.spawn(this.exe, this.commandline, {cwd: this.config.path, uid: userid.uid(self.config.user), gid: userid.gid("gsdusers")});
 	this.pid = this.ps.pid;
 
@@ -121,7 +120,7 @@ GameServer.prototype.turnon = function(callback) {
 			console.log("[INFO] CPULimit set to " + this.cpu_limit);
 
 			this.cpu.on('close', function(code) {
-				console.log("[WARN] Child process 'cpulimit' for process " + this.pid + " exited with code " + code + ".");
+				console.log("[WARN] Child process 'cpulimit' for process " + this.ps.pid + " exited with code " + code + ".");
 			});
 
 		}
@@ -217,27 +216,27 @@ GameServer.prototype.create = function(){
 
 	async.series([
 	function(callback) {
-		console.log("====Creating user====");
+		console.log("[INFO] Creating user");
 		createUser(config.user, config.path, function cb(){callback(null);});
-		console.log("========");
+		console.log("[INFO] User Created");
 	},
 	function(callback) {
-		console.log("====Installing plugin====");
+		console.log("[INFO] Installing Plugin");
 		self.plugin.install(self, function cb(){callback(null);});
-		console.log("========");
+		console.log("[INFO] Plugin Installed");
 	},
 	function(callback) {
-		console.log("====Fixing Permissions====");
+		console.log("[INFO] Fixing Permissions");
 		fixperms(config.user, config.path, function cb(){callback(null);});
-		console.log("========");
+		console.log("[INFO] Permissions Fixed");
 	}]);
 };
 
 GameServer.prototype.delete = function(){
-	console.log("-----Deleting Server " + this.config.name + "-----");
+	console.log("[INFO] Deleting Server " + this.config.name);
 	this.kill();
 	deleteUser(this.config.user, function cb(){callback(null);});
-	console.log("----------")
+	console.log("[INFO] Server Deleted")
 };
 
 GameServer.prototype.setStatus = function(status){
@@ -251,6 +250,10 @@ GameServer.prototype.query = function(self){
 	r = self.plugin.query(self);
 	self.emit('query');
 	return r;
+};
+
+GameServer.prototype.taillog = function(lines){
+	return this.plugin.getTail(this.config, lines);
 };
 
 GameServer.prototype.procStats = function(self){
@@ -358,7 +361,6 @@ GameServer.prototype.zipfile = function zipfile(file) {
 
 	path = pathlib.join(this.config.path, pathlib.normalize(file));
 	loc = pathlib.join(this.config.path, pathlib.normalize(file+".tar.gz"));
-	console.log("   To: "+ loc);
 	compress = new targz().compress(path, loc, function(err) {if(err) console.log(err); } );
 
 };
@@ -410,7 +412,6 @@ GameServer.prototype.installgamemode = function installgamemode(){
 	managerlocation = pathlib.join(__dirname,"gamemodes",self.config.plugin,"gamemodemanager");
 	if (self.status == ON){
 		self.turnoff();
-		console.log("HERE");
 	}
 	self.setStatus(CHANGING_GAMEMODE);
 	console.log(self.config.path)
