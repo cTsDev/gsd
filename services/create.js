@@ -23,9 +23,9 @@ function createUser(username, home, callback){
 }
 
 function deleteUser(username, callback){
-	console.log("====Removing user " + username + "====");
+	console.log("[INFO] Removing user " + username + "====");
 	command = format("deluser --remove-home %s", username);
-	console.log("====Removed====");
+	console.log("[INFO] User Removed");
 	// @TODO: Actually remove the server from config.json...
 	executeCommand(command, callback)
 }

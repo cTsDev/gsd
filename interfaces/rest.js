@@ -179,8 +179,8 @@ restserver.get('/gameservers/:id/maplist', function maplist(req, res, next){
 });
 restserver.get('/gameservers/:id/query', function query(req, res, next){
 	if (!restauth(req, req.params.id, "s:query")){res = unauthorized(res); return next();}
-	service = servers[req.params.id]; res.send(service.lastquery());
-
+	service = servers[req.params.id];
+	res.send(service.lastquery());
 });
 
 restserver.post('/gameservers/:id/console', function command(req, res, next){
@@ -196,7 +196,15 @@ restserver.get('/gameservers/:id/addonsinstalled', function command(req, res, ne
 	res.send(service.addonlist());
 });
 
+restserver.get('/gameservers/:id/getlog', function(req, res, next){
+	console.info("New");
+	if(!restauth(req, req.params.id, "s:console")){res = unauthorized(res); return next();}
+	service = servers[req.params.id];
+	res.send(service.getLog());
+});
+
 restserver.get(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
+	console.info("Old");
 	if (!restauth(req, req.params[0], "s:files:get")){res = unauthorized(res); return next();}
 	service = servers[req.params[0]];
 	res.send({'contents':service.readfile(req.params[1])});
