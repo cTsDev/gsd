@@ -68,7 +68,6 @@ function savesettings(){
 
 function unknownMethodHandler(req, res) {
 	if (req.method.toLowerCase() === 'options') {
-	log.verbose('received an options method request');
 	var allowHeaders = ['Accept', 'Accept-Version', 'Content-Type', 'Api-Version', 'Origin', 'X-Requested-With', 'Options', 'X-Access-Token']; // added Origin & X-Requested-With
 
 	res.header('Access-Control-Allow-Credentials', true);

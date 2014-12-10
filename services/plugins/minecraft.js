@@ -119,7 +119,9 @@ settings.getTail = function(server, lines) {
 	lines = (lines < 0) ? 1 : lines;
 	for(i = l.length-lines; i<l.length; i++){
 
-		out += l[i]+"\n";
+		if(l[i] != null) {
+			out += l[i]+"\n";
+		}
 
 	}
 
