@@ -148,12 +148,7 @@ GameServer.prototype.turnon = function(callback) {
 				self.usagestats = {};
 				self.querystats = {};
 				self.emit('started');
-<<<<<<< HEAD
 				console.log("Started server for "+ self.config.user +" ("+ self.config.name +")");
-				log.debug("test");
-=======
-				console.log("[INFO] Started server for "+ self.config.user +" ("+ self.config.name +")");
->>>>>>> master
 			}
 		}
 	});
