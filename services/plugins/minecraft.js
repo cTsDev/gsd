@@ -5,6 +5,7 @@ glob = require('glob');
 copyFolder = require('../create.js').copyFolder;
 var properties = require ("properties");
 var async = require('async');
+var trim = require("trim");
 var Gamedig = require('gamedig');
 var settings = {};
 var bukget = require('bukget')({
@@ -25,7 +26,7 @@ settings.defaultvariables = {"-Djline.terminal=":"jline.UnsupportedTerminal", "-
 settings.exe = "java",
 settings.defaultPort = 25565;
 settings.joined = ["-Xmx", "-XX:PermSize=", "-Djline.terminal="];
-settings.log = "logs/latest.log"
+settings.log = "/logs/latest.log"
 
 settings.query = function query(self) {
 	ip = self.gamehost;
@@ -107,18 +108,24 @@ settings.install = function(server, callback){
 
 };
 
-settings.getLog = function (self) {
-	console.info("made it");
+settings.getTail = function(server, lines) {
 
-	l = fs.readFileSync(pathlib.join(self.config.path + settings.log)).toString().split('\n');
+	try {
+		l = fs.readFileSync(pathlib.join(server.path + settings.log)).toString().split('\n');
+	} catch(ex) {
+		return "No log was found to read from. ["+ settings.log +"]";
+	}
+
 	out = "";
-	for(i = l.length-10; i<l.length; i++){
+	lines = parseInt(lines) + parseInt(1);
+	lines = (lines < 0) ? 1 : lines;
+	for(i = l.length-lines; i<l.length; i++){
 
-		out += l[i]+'\n';
-		console.log(out);
+		out += l[i]+"\n";
 
 	}
-	return out;
+
+	return trim.right(out);
 
 }
 

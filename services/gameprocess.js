@@ -242,9 +242,8 @@ GameServer.prototype.query = function(self){
 	return r;
 };
 
-GameServer.prototype.log = function(){
-	console.info("Made it");
-	return self.plugin.getLog;
+GameServer.prototype.taillog = function(lines){
+	return this.plugin.getTail(this.config, lines);
 };
 
 GameServer.prototype.procStats = function(self){

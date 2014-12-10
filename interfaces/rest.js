@@ -196,11 +196,10 @@ restserver.get('/gameservers/:id/addonsinstalled', function command(req, res, ne
 	res.send(service.addonlist());
 });
 
-restserver.get('/gameservers/:id/getlog', function(req, res, next){
-	console.info("New");
+restserver.get('/gameservers/:id/log/:lines', function(req, res, next){
 	if(!restauth(req, req.params.id, "s:console")){res = unauthorized(res); return next();}
 	service = servers[req.params.id];
-	res.send(service.getLog());
+	res.send(service.taillog(req.params.lines));
 });
 
 restserver.get(/^\/gameservers\/(\d+)\/file\/(.+)/, function(req, res, next) {
