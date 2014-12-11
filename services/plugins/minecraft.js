@@ -105,14 +105,18 @@ settings.preflight = function(server, user, group, path){
 				}
 
 				if(rewrite) {
-					properties.stringify(obj, {path:settingsPath});
+					properties.stringify(obj, {path:settingsPath}, function (error, obj){
+						if(error) {
+							log.error("An error occured trying to update the server.properties file.", error);
+						}
+					});
 				}
 
 			});
 
 		} catch(ex){
 
-			log.error("An error occured trying to update server.properties for "+ server, ex);
+			log.error("An uncaught error occured trying to update server.properties for "+ server, ex);
 
 		}
 
