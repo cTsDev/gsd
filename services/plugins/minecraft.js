@@ -71,12 +71,55 @@ settings.preflight = function(server, user, group, path){
 	if (!fs.existsSync(jarPath)){
 		throw new Error(server.config.variables['-jar'] + " does not seem to be in the server directory!");
 	}
+
 	if(fs.existsSync(settingsPath)){
+
 		try{
-			fs.chown(settingsPath, user, group, function(){callback(null);});
+
+			var rewrite = false;
+			var serverConfig = properties.parse(settingsPath, {path:true}, function (error, obj){
+
+				if(obj['enable-query'] != 'true') {
+					obj['enable-query'] = 'true';
+					rewrite = true;
+				}
+
+				if(obj['server-port'] != server.config.gameport) {
+					obj['server-port'] = server.config.gameport;
+					rewrite = true;
+				}
+
+				if(obj['query.port'] != server.config.gameport) {
+					obj['query.port'] = server.config.gameport;
+					rewrite = true;
+				}
+
+				if(obj['server-ip'] != server.config.gamehost) {
+					obj['server-ip'] = server.config.gamehost;
+					rewrite = true;
+				}
+
+				if(obj['enable-query'] != 'true') {
+					obj['enable-query'] = 'true';
+					rewrite = true;
+				}
+
+				if(rewrite) {
+					properties.stringify(obj, {path:settingsPath});
+				}
+
+			});
+
 		} catch(ex){
-			log.error("Can not change ownership of settings!", ex);
+
+			log.error("An error occured trying to update server.properties for "+ server, ex);
+
 		}
+
+	} else {
+
+		log.error("Cannot boot server without a valid server.properties file.");
+
 	}
 };
 

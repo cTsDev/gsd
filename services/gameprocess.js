@@ -90,7 +90,11 @@ GameServer.prototype.updatebuild = function(build){
 GameServer.prototype.preflight = function(callback) {
 	var self = this;
 	log.verbose("Running preflight for " + this.config.user);
+
 	try{
+		log.verbose("Fixing Permissions before server boot.");
+		fixperms(this.config.user, this.config.path, function cb(){});
+		log.verbose("Permissions Fixed before server boot.");
 		this.plugin.preflight(this, userid.uid(this.config.user), userid.gid(this.config.user), this.config.path);
 	} catch(ex) {
 		log.error("Pre-flight for server " + self.config.name +" failed!", ex.stack);
@@ -106,10 +110,6 @@ GameServer.prototype.turnon = function(callback) {
 	if (!this.status == OFF){
 		return;
 	}
-
-	log.verbose("Fixing Permissions before server boot.");
-	fixperms(this.config.user, this.config.path, function cb(){});
-	log.verbose("Permissions Fixed before server boot.");
 
 	this.ps = pty.spawn(this.exe, this.commandline, {cwd: this.config.path, uid: userid.uid(this.config.user), gid: userid.gid(this.config.user)});
 	this.pid = this.ps.pid;
