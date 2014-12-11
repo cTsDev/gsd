@@ -69,13 +69,13 @@ settings.preflight = function(server, user, group, path){
 	settingsPath = pathlib.join(path, "server.properties");
 
 	if (!fs.existsSync(jarPath)){
-		throw new Error("Jar doesn\'t exist : " + server.config.variables['-jar']);
+		throw new Error(server.config.variables['-jar'] + " does not seem to be in the server directory!");
 	}
 	if(fs.existsSync(settingsPath)){
 		try{
 			fs.chown(settingsPath, user, group, function(){callback(null);});
 		} catch(ex){
-			console.error(ex.stack);
+			log.error("Can not change ownership of settings!", ex);
 		}
 	}
 };

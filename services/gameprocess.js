@@ -23,6 +23,7 @@ var log = require('../log.js');
 
 var OFF = 0; ON = 1; STARTING = 2; STOPPING = 3; CHANGING_GAMEMODE = 4;
 
+
 function GameServer(config) {
 	this.status = OFF;
 	this.config = config;
@@ -87,11 +88,13 @@ GameServer.prototype.updatebuild = function(build){
 };
 
 GameServer.prototype.preflight = function(callback) {
+	var self = this;
 	log.verbose("Running preflight for " + this.config.user);
 	try{
 		this.plugin.preflight(this, userid.uid(this.config.user), userid.gid("gsdusers"), this.config.path);
 	} catch(ex) {
-		console.error(ex.stack);
+		log.error("Pre-flight for server " + self.config.name +" failed!", ex.stack);
+		throw Error(ex.message);
 	}
 	log.verbose("Completed preflight.");
 	callback();
@@ -137,11 +140,13 @@ GameServer.prototype.turnon = function(callback) {
 		self.emit("console", output);
 		if (self.status == STARTING){
 			if (output.indexOf(self.plugin.eula_trigger) !=-1){
-				self.setStatus(OFF);
-				self.emit('crash');
 				log.warn("Server " + self.config.name + " needs to accept EULA");
+				self.setStatus(OFF);
+				self.emit('off');
+				self.emit('crash');
 			}
 			if (output.indexOf(self.plugin.started_trigger) !=-1){
+
 				self.setStatus(ON);
 				self.queryCheck = setInterval(self.query, 10000, self);
 				self.statCheck = setInterval(self.procStats, 10000, self);
@@ -149,6 +154,7 @@ GameServer.prototype.turnon = function(callback) {
 				self.querystats = {};
 				self.emit('started');
 				log.verbose("Started server for "+ self.config.user +" ("+ self.config.name +")");
+
 			}
 		}
 	});
@@ -171,7 +177,7 @@ GameServer.prototype.turnon = function(callback) {
 
 	this.on('crash', function(){
 		log.warn("Restarting server after crash for "+ self.config.user +" ("+ self.config.name +")");
-		if (self.status == ON){
+		if (self.status != ON){
 			self.restart();
 		}
 	});
@@ -288,8 +294,8 @@ GameServer.prototype.info = function(){
 
 
 GameServer.prototype.restart = function(){
-	this.once('off', function (stream) {this.turnon()});
-	this.turnoff();
+		this.once('crash', function (stream) {this.turnon()});
+		this.turnoff();
 };
 
 GameServer.prototype.send = function(data){
