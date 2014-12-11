@@ -107,6 +107,10 @@ GameServer.prototype.turnon = function(callback) {
 		return;
 	}
 
+	log.verbose("Fixing Permissions before server boot.");
+	fixperms(config.user, config.path, function cb(){});
+	log.verbose("Permissions Fixed before server boot.");
+
 	this.ps = pty.spawn(this.exe, this.commandline, {cwd: this.config.path, uid: userid.uid(self.config.user), gid: userid.gid("gsdusers")});
 	this.pid = this.ps.pid;
 
