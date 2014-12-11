@@ -91,7 +91,7 @@ GameServer.prototype.preflight = function(callback) {
 	var self = this;
 	log.verbose("Running preflight for " + this.config.user);
 	try{
-		this.plugin.preflight(this, userid.uid(this.config.user), userid.gid("gsdusers"), this.config.path);
+		this.plugin.preflight(this, userid.uid(this.config.user), userid.gid(this.config.users), this.config.path);
 	} catch(ex) {
 		log.error("Pre-flight for server " + self.config.name +" failed!", ex.stack);
 		throw Error(ex.message);

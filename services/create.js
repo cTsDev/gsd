@@ -12,7 +12,7 @@ function createUser(username, home, callback){
 
 	try {
 
-		command = format("useradd -m -d %s -s /bin/false -G gsdusers %s", home, username);
+		command = format("useradd -m -d %s -s /bin/false %s", home, username);
 		executeCommand(command, callback);
 
 	} catch(ex) {
@@ -38,7 +38,7 @@ function linkDir(from_path, to_path, callback){
 
 function fixperms(user, path, callback){
 	log.debug("Fixing file permissions");
-	executeCommand("chown -R "+ user +":gsdusers "+ path, callback);
+	executeCommand("chown -R "+ user +":"+ user +" "+ path, callback);
 	log.debug("Permissions fixed");
 };
 
