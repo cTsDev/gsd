@@ -172,7 +172,7 @@ settings.getTail = function(server, lines) {
 
 	}
 
-	return trim.right(out);
+	return trim.right(out) + "\n";
 
 }
 
