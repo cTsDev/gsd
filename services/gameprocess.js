@@ -87,6 +87,13 @@ GameServer.prototype.updatebuild = function(build){
 
 };
 
+GameServer.prototype.updatebaseconfig = function(config){
+
+	this.config = utls.mergedicts(this.config, config);
+	savesettings();
+
+};
+
 GameServer.prototype.preflight = function(callback) {
 	var self = this;
 	log.verbose("Running preflight for " + this.config.user);

@@ -45,7 +45,7 @@ function restauth(req, service, permission){
 function unauthorized(res){
 
 	res.writeHead(403);
-	res.end('HTTP/1.1 403 Forbidden. You do not have permission to access this function.');
+	res.end({'error': 'HTTP/1.1 403 Forbidden. You do not have permission to access this function.'});
 	return res;
 
 }
@@ -135,6 +135,22 @@ restserver.put('/gameservers/:id', function info(req, res, next){
 		} catch(ex){
 
 			log.error("Error encountered when trying to update server CPU information.", ex);
+
+		}
+
+	}
+
+	if(req.params['game_cfg']) {
+
+		try {
+
+			service = servers[req.params.id];
+			service.updatebaseconfig(JSON.parse(req.params['game_cfg']));
+			saveconfig(config);
+
+		} catch(ex){
+
+			log.error("Error encountered when trying to update game configuration variables.", ex);
 
 		}
 
