@@ -45,7 +45,7 @@ function restauth(req, service, permission){
 function unauthorized(res){
 
 	res.writeHead(403);
-	res.end({'error': 'HTTP/1.1 403 Forbidden. You do not have permission to access this function.'});
+	res.end(JSON.stringify({'error': 'HTTP/1.1 403 Forbidden. You do not have permission to access this function.'}));
 	return res;
 
 }
