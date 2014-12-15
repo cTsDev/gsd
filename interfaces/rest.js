@@ -60,6 +60,24 @@ restserver.get('/gameservers/', function info(req, res, next){
 	res.send(response);
 });
 
+restserver.get('/gameservers/config', function info(req, res, next){
+	if (!restauth(req, -1, "g:config")){res = unauthorized(res); return next();}
+	res.send(config);
+});
+
+restserver.put('/gameservers/config', function info(req, res, next){
+	if (!restauth(req, -1, "g:config")){res = unauthorized(res); return next();}
+	if(req.params['cfg']) {
+
+		try {
+			saveconfig(JSON.parse(req.params['cfg']));
+		} catch(ex){
+			log.error("Error encountered when trying to update config.json", ex);
+		}
+
+	}
+});
+
 restserver.post('/gameservers/', function info(req, res, next){
 	if (!restauth(req, -1, "g:new")){res = unauthorized(res); return next();}
 	id = config.servers.push(JSON.parse(req.params['settings']));
