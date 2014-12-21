@@ -11,6 +11,10 @@ var l = {};
 l.d = false;
 l.v = false;
 
+if (!fs.existsSync('logs/')) {
+	fs.mkdirSync('logs/');
+}
+
 l.debug = function(l, data) {
 
 	var self = this;
